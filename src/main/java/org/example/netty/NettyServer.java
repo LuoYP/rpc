@@ -44,7 +44,6 @@ public class NettyServer {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().addLast(new IdleStateHandler(0, 0, 120, TimeUnit.SECONDS));
                             ch.pipeline().addLast(new ServerHeartBeatHandler());
-                            ch.pipeline().addLast(new LengthFieldBasedFrameDecoder());
                         }
                     });
             ChannelFuture future = bootstrap.bind(configuration.getPort()).sync();
