@@ -1,0 +1,10 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+jarRepositories.xml
+temp/
+*.log
+*.jar
+
+.idea/
+target/
