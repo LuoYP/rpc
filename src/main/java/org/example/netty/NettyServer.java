@@ -11,6 +11,9 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import org.example.config.Configuration;
+import org.example.netty.handler.MessageDecoder;
+import org.example.netty.handler.MessageEncoder;
+import org.example.netty.handler.MessageHandler;
 import org.example.netty.handler.ServerHeartBeatHandler;
 
 import java.util.concurrent.TimeUnit;
@@ -44,6 +47,12 @@ public class NettyServer {
                         protected void initChannel(SocketChannel ch) throws Exception {
                             ch.pipeline().addLast(new IdleStateHandler(0, 0, 120, TimeUnit.SECONDS));
                             ch.pipeline().addLast(new ServerHeartBeatHandler());
+                            //长度用int就可以表示了，所以长度域取4个字节
+                            //长度域不是业务消息的内容，消息实际内容忽略长度域的4个字节
+                            ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
+                            ch.pipeline().addLast(new MessageEncoder());
+                            ch.pipeline().addLast(new MessageDecoder());
+                            ch.pipeline().addLast(new MessageHandler());
                         }
                     });
             ChannelFuture future = bootstrap.bind(configuration.getPort()).sync();

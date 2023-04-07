@@ -1,14 +1,12 @@
 package org.example;
 
-import org.example.communication.interfaces.RuntimeInfoService;
-import org.example.communication.proxy.RpcProxy;
+import org.example.config.Configuration;
+import org.example.netty.NettyServer;
 
 public class App {
     public static void main(String[] args) throws Exception {
-        RpcProxy<RuntimeInfoService> rpcProxy = new RpcProxy<>(RuntimeInfoService.class);
-        RuntimeInfoService proxy = rpcProxy.getProxy();
-        String s = proxy.sayHello("");
-        System.out.println(s);
-        System.out.println(proxy);
+        Configuration configuration = new Configuration();
+        NettyServer nettyServer = new NettyServer(configuration);
+        nettyServer.start();
     }
 }
