@@ -1,11 +1,11 @@
-package org.example.model;
+package org.example.common.model;
 
 import java.io.Serializable;
 import java.util.List;
 
-public class RpcMessage implements Serializable {
+public class RpcMessage_old implements Serializable {
 
-    public RpcMessage(){}
+    public RpcMessage_old(){}
 
     private String className;
 
@@ -19,7 +19,7 @@ public class RpcMessage implements Serializable {
         return className;
     }
 
-    public RpcMessage setClassName(String className) {
+    public RpcMessage_old setClassName(String className) {
         this.className = className;
         return this;
     }
@@ -28,7 +28,7 @@ public class RpcMessage implements Serializable {
         return methodName;
     }
 
-    public RpcMessage setMethodName(String methodName) {
+    public RpcMessage_old setMethodName(String methodName) {
         this.methodName = methodName;
         return this;
     }
@@ -37,7 +37,7 @@ public class RpcMessage implements Serializable {
         return argsType;
     }
 
-    public RpcMessage setArgsType(List<Class<?>> argsType) {
+    public RpcMessage_old setArgsType(List<Class<?>> argsType) {
         this.argsType = argsType;
         return this;
     }
@@ -46,7 +46,7 @@ public class RpcMessage implements Serializable {
         return args;
     }
 
-    public RpcMessage setArgs(List<Object> args) {
+    public RpcMessage_old setArgs(List<Object> args) {
         this.args = args;
         return this;
     }

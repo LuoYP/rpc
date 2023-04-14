@@ -1,4 +1,4 @@
-package org.example.constant;
+package org.example.common.constant;
 
 public class Constants {
 

@@ -1,9 +1,9 @@
-package org.example.netty.handler;
+package org.example.common.handler;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
-import org.example.utils.SerializeUtil;
+import org.example.common.utils.SerializeUtil;
 
 import java.util.List;
 

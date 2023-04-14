@@ -1,9 +1,9 @@
-package org.example.config;
+package org.example.common.config;
 
-import org.example.annotation.ConfigPrefix;
-import org.example.constant.Constants;
-import org.example.utils.CharSequenceUtil;
-import org.example.utils.CollUtil;
+import org.example.common.annotation.ConfigPrefix;
+import org.example.common.constant.Constants;
+import org.example.common.utils.CharSequenceUtil;
+import org.example.common.utils.CollUtil;
 
 import java.io.File;
 import java.lang.reflect.Field;

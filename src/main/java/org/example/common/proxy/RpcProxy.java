@@ -1,9 +1,9 @@
-package org.example.communication.proxy;
+package org.example.common.proxy;
 
 import io.netty.channel.Channel;
-import org.example.model.RpcMessage;
-import org.example.netty.handler.MessageHandler;
-import org.example.utils.CharSequenceUtil;
+import org.example.common.model.RpcMessage_old;
+import org.example.common.handler.MessageHandler;
+import org.example.common.utils.CharSequenceUtil;
 
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
@@ -37,7 +37,7 @@ public class RpcProxy<T> {
                 if (Objects.isNull(channel)) {
                     throw new RuntimeException("remote is off-line");
                 }
-                RpcMessage rpcMessage = new RpcMessage();
+                RpcMessage_old rpcMessage = new RpcMessage_old();
                 rpcMessage.setClassName(target.getName());
                 rpcMessage.setMethodName(method.getName());
                 List<Class<?>> argsType = new ArrayList<>();

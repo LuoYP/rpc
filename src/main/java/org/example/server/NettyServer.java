@@ -1,4 +1,4 @@
-package org.example.netty;
+package org.example.server;
 
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -10,11 +10,11 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
-import org.example.config.Configuration;
-import org.example.netty.handler.MessageDecoder;
-import org.example.netty.handler.MessageEncoder;
-import org.example.netty.handler.MessageHandler;
-import org.example.netty.handler.ServerHeartBeatHandler;
+import org.example.common.config.Configuration;
+import org.example.common.handler.MessageDecoder;
+import org.example.common.handler.MessageEncoder;
+import org.example.common.handler.MessageHandler;
+import org.example.server.handler.ServerHeartBeatHandler;
 
 import java.util.concurrent.TimeUnit;
 

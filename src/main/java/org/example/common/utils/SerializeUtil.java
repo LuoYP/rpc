@@ -1,4 +1,4 @@
-package org.example.utils;
+package org.example.common.utils;
 
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
