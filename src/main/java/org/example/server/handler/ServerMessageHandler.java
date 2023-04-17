@@ -1,6 +1,7 @@
 package org.example.server.handler;
 
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.example.common.model.RpcLine;
@@ -18,6 +19,7 @@ import java.net.InetSocketAddress;
  * 2.鉴权
  * 3.消息分发
  */
+@Sharable
 public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
 
     @Override
