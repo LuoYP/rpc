@@ -2,9 +2,11 @@ package org.example.common.proxy;
 
 import io.netty.channel.Channel;
 import org.example.common.constant.Constants;
+import org.example.common.constant.RpcStatusCode;
 import org.example.common.handler.MessageHandler;
 import org.example.common.model.RpcFile;
 import org.example.common.model.RpcRequest;
+import org.example.common.model.RpcResponse;
 import org.example.common.sender.RpcSender;
 import org.example.common.utils.CharSequenceUtil;
 
@@ -44,19 +46,23 @@ public class RpcProxy<T> {
                 if (Objects.isNull(channel)) {
                     throw new RuntimeException("remote is off-line");
                 }
-
+                //构造RPC请求
                 String className = target.getDeclaringClass().getName();
                 String methodName = method.getName();
                 Class<?>[] parameterTypes = method.getParameterTypes();
                 long id = Constants.ID.getAndIncrement();
                 byte messageType = method.getReturnType().equals(RpcFile.class) ? Constants.FILE : Constants.COMMENT;
-
                 RpcRequest rpcRequest = new RpcRequest();
                 rpcRequest.buildRpcLine(className, methodName, parameterTypes)
                         .buildRpcHeader(id, messageType, null)
                         .buildRpcContent(args);
-                sender.send(rpcRequest);
-                return null;
+                //发送请求
+                RpcResponse rpcResponse = sender.send(rpcRequest, channel);
+                RpcStatusCode status = rpcResponse.code();
+                if (RpcStatusCode.OK.equals(status)) {
+                    return rpcResponse.content();
+                }
+                throw new RuntimeException(status.msg());
             }
         });
         return (T) proxy;

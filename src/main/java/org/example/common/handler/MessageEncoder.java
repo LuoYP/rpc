@@ -8,10 +8,10 @@ import org.example.common.model.RpcMessage_old;
 import org.example.common.utils.SerializeUtil;
 
 @ChannelHandler.Sharable
-public class MessageEncoder extends MessageToByteEncoder<RpcMessage_old> {
+public class MessageEncoder extends MessageToByteEncoder<Object> {
 
     @Override
-    protected void encode(ChannelHandlerContext ctx, RpcMessage_old msg, ByteBuf out) throws Exception {
+    protected void encode(ChannelHandlerContext ctx, Object msg, ByteBuf out) throws Exception {
         byte[] bytes = SerializeUtil.writeToBytes(msg);
         out.writeInt(bytes.length);
         out.writeBytes(bytes);
