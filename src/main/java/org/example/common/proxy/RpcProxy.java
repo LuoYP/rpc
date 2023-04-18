@@ -1,15 +1,22 @@
 package org.example.common.proxy;
 
 import io.netty.channel.Channel;
-import org.example.common.model.RpcMessage_old;
+import org.example.common.constant.Constants;
 import org.example.common.handler.MessageHandler;
+import org.example.common.model.RpcFile;
+import org.example.common.model.RpcRequest;
+import org.example.common.sender.RpcSender;
 import org.example.common.utils.CharSequenceUtil;
 
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 
+/**
+ * RPC通讯接口的代理实现
+ * 通过Netty远程调用目标方法
+ *
+ * @param <T>
+ */
 public class RpcProxy<T> {
 
     private Class<T> target;
@@ -19,7 +26,7 @@ public class RpcProxy<T> {
         this.target = target;
     }
 
-    public T getProxy() {
+    public T getProxy(RpcSender sender) {
         Object proxy;
         ClassLoader classLoader = target.getClassLoader();
         Class<?>[] interfaces = new Class[]{target};
@@ -37,18 +44,18 @@ public class RpcProxy<T> {
                 if (Objects.isNull(channel)) {
                     throw new RuntimeException("remote is off-line");
                 }
-                RpcMessage_old rpcMessage = new RpcMessage_old();
-                rpcMessage.setClassName(target.getName());
-                rpcMessage.setMethodName(method.getName());
-                List<Class<?>> argsType = new ArrayList<>();
-                List<Object> argList = new ArrayList<>();
-                for (Object arg : args) {
-                    argsType.add(arg.getClass());
-                    argList.add(arg);
-                }
-                rpcMessage.setArgsType(argsType);
-                rpcMessage.setArgs(argList);
-                channel.write(rpcMessage);
+
+                String className = target.getDeclaringClass().getName();
+                String methodName = method.getName();
+                Class<?>[] parameterTypes = method.getParameterTypes();
+                long id = Constants.ID.getAndIncrement();
+                byte messageType = method.getReturnType().equals(RpcFile.class) ? Constants.FILE : Constants.COMMENT;
+
+                RpcRequest rpcRequest = new RpcRequest();
+                rpcRequest.buildRpcLine(className, methodName, parameterTypes)
+                        .buildRpcHeader(id, messageType, null)
+                        .buildRpcContent(args);
+                sender.send(rpcRequest);
                 return null;
             }
         });

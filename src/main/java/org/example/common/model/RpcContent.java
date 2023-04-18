@@ -6,13 +6,13 @@ package org.example.common.model;
  */
 public class RpcContent {
 
-    private Object content;
+    private Object[] content;
 
-    public Object content() {
+    public Object[] content() {
         return content;
     }
 
-    public RpcContent setContent(Object content) {
+    public RpcContent setContent(Object[] content) {
         this.content = content;
         return this;
     }

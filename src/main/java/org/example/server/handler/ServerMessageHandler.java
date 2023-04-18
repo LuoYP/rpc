@@ -56,10 +56,8 @@ public class ServerMessageHandler extends ChannelInboundHandlerAdapter {
             ParameterizedType parameterizedType = (ParameterizedType) type;
             Class<?> implementationClass = (Class<?>) parameterizedType.getActualTypeArguments()[0];
 
-
             String s = rpcLine.className();
         }
-
         super.channelRead(ctx, msg);
     }
 }
