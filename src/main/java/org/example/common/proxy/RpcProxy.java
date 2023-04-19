@@ -3,12 +3,12 @@ package org.example.common.proxy;
 import io.netty.channel.Channel;
 import org.example.common.constant.Constants;
 import org.example.common.constant.RpcStatusCode;
-import org.example.common.handler.MessageHandler;
 import org.example.common.model.RpcFile;
 import org.example.common.model.RpcRequest;
 import org.example.common.model.RpcResponse;
 import org.example.common.sender.RpcSender;
 import org.example.common.utils.CharSequenceUtil;
+import org.example.server.Session;
 
 import java.lang.reflect.Proxy;
 import java.util.Objects;
@@ -42,12 +42,12 @@ public class RpcProxy<T> {
                 if (CharSequenceUtil.isEmpty(remote)) {
                     throw new RuntimeException("remote IP is empty");
                 }
-                Channel channel = MessageHandler.ONLINE.get(remote);
+                Channel channel = Session.ACTIVE_CHANNEL.get(remote);
                 if (Objects.isNull(channel)) {
                     throw new RuntimeException("remote is off-line");
                 }
                 //构造RPC请求
-                String className = target.getDeclaringClass().getName();
+                String className = target.getName();
                 String methodName = method.getName();
                 Class<?>[] parameterTypes = method.getParameterTypes();
                 long id = Constants.ID.getAndIncrement();

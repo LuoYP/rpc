@@ -15,6 +15,7 @@ import org.example.common.handler.MessageDecoder;
 import org.example.common.handler.MessageEncoder;
 import org.example.common.handler.MessageHandler;
 import org.example.server.handler.ServerHeartBeatHandler;
+import org.example.server.handler.ServerMessageHandler;
 
 import java.util.concurrent.TimeUnit;
 
@@ -52,10 +53,10 @@ public class NettyServer {
                             ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
                             ch.pipeline().addLast(new MessageEncoder());
                             ch.pipeline().addLast(new MessageDecoder());
-                            ch.pipeline().addLast(new MessageHandler());
+                            ch.pipeline().addLast(new ServerMessageHandler());
                         }
                     });
-            ChannelFuture future = bootstrap.bind(configuration.getPort()).sync();
+            ChannelFuture future = bootstrap.bind(configuration.port()).sync();
             future.channel().closeFuture().sync();
         } catch (Exception e) {
 

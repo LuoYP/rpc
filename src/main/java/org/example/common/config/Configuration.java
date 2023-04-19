@@ -22,17 +22,22 @@ public class Configuration {
 
     private Integer idleSeconds = 60;
 
+    private String host = "127.0.0.1";
+
     public Configuration() {
         loadProperties();
     }
 
-    public int getPort() {
+    public Integer port() {
         return port;
     }
 
-    public Configuration setPort(int port) {
-        this.port = port;
-        return this;
+    public Integer idleSeconds() {
+        return idleSeconds;
+    }
+
+    public String host() {
+        return host;
     }
 
     //写死配置文件路径
