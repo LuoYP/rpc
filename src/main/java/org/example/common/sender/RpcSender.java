@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import io.netty.util.concurrent.DefaultEventExecutor;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.Promise;
+import org.example.common.annotation.Component;
 import org.example.common.constant.RpcStatusCode;
 import org.example.common.model.RpcRequest;
 import org.example.common.model.RpcResponse;
@@ -12,6 +13,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
+@Component
 public class RpcSender {
 
     public static final Map<Long, Promise<RpcResponse>> RPC_RESPONSE = new ConcurrentHashMap<>();

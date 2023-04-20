@@ -10,22 +10,21 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.example.common.annotation.Autowired;
+import org.example.common.annotation.Component;
 import org.example.common.config.Configuration;
 import org.example.common.handler.MessageDecoder;
 import org.example.common.handler.MessageEncoder;
-import org.example.common.handler.MessageHandler;
 import org.example.server.handler.ServerHeartBeatHandler;
 import org.example.server.handler.ServerMessageHandler;
 
 import java.util.concurrent.TimeUnit;
 
+@Component
 public class NettyServer {
 
+    @Autowired
     private Configuration configuration;
-
-    public NettyServer(Configuration configuration) {
-        this.configuration = configuration;
-    }
 
     public void start() {
         EventLoopGroup bossGroup = new NioEventLoopGroup();

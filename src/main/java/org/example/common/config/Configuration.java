@@ -1,5 +1,6 @@
 package org.example.common.config;
 
+import org.example.common.annotation.Component;
 import org.example.common.annotation.ConfigPrefix;
 import org.example.common.constant.Constants;
 import org.example.common.utils.CharSequenceUtil;
@@ -14,6 +15,7 @@ import java.util.Objects;
 import java.util.Properties;
 import java.util.stream.Collectors;
 
+@Component
 @ConfigPrefix(value = "rpc")
 public class Configuration {
 
