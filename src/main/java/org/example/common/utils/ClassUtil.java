@@ -1,7 +1,10 @@
 package org.example.common.utils;
 
+import cn.hutool.core.collection.EnumerationIter;
+
 import java.io.File;
 import java.io.IOException;
+import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -42,10 +45,14 @@ public class ClassUtil {
     public static List<Class<?>> getClasses(String packageName) {
         List<String> classNames = getClassName(packageName);
         return classNames.stream().map(className -> {
-            Class<?> clazz;
+            Class<?> clazz = null;
             try {
                 clazz = Class.forName(className);
-            } catch (ClassNotFoundException e) {
+            } catch (NoClassDefFoundError | ClassNotFoundException e) {
+                // 由于依赖库导致的类无法加载，直接跳过此类
+            } catch (UnsupportedClassVersionError e) {
+                // 版本导致的不兼容的类，跳过
+            } catch (Exception e) {
                 throw new RuntimeException(e);
             }
             return clazz;
@@ -61,15 +68,23 @@ public class ClassUtil {
     public static List<String> getClassName(String packageName) {
         List<String> classNames = new ArrayList<>();
         String path = packageName.replace('.', '/');
-        URL resource = Thread.currentThread().getContextClassLoader().getResource(path);
-        if (Objects.isNull(resource)) {
+        Enumeration<URL> resources;
+        try {
+            resources = Thread.currentThread().getContextClassLoader().getResources(path);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        if (Objects.isNull(resources)) {
             return classNames;
         }
-        String fileType = resource.getProtocol();
-        if ("file".equals(fileType)) {
-            classNames.addAll(loadClassNameByFile(resource.getFile()));
-        } else if ("jar".equals(fileType)) {
-            classNames.addAll(loadClassNameByJar(resource.getFile()));
+        while (resources.hasMoreElements()) {
+            URL resource = resources.nextElement();
+            String fileType = resource.getProtocol();
+            if ("file".equals(fileType)) {
+                classNames.addAll(loadClassNameByFile(resource.getFile()));
+            } else if ("jar".equals(fileType)) {
+                classNames.addAll(loadClassNameByJar(resource.getFile()));
+            }
         }
         return classNames;
     }
@@ -115,13 +130,12 @@ public class ClassUtil {
         List<String> classNames = new ArrayList<>();
         String[] jarPathArr = jarPath.split("!");
         String jarFilePath = jarPathArr[0].substring(jarPathArr[0].indexOf("/"));
-        String jarPackage = jarPathArr[1].substring(1);
         try (JarFile jarFile = new JarFile(jarFilePath)) {
             Enumeration<JarEntry> entries = jarFile.entries();
             while (entries.hasMoreElements()) {
                 JarEntry jarEntry = entries.nextElement();
                 String jarPathName = jarEntry.getName();
-                if (jarPathName.startsWith(jarPackage) && jarPathName.endsWith(".class")) {
+                if (jarPathName.endsWith(".class") && !jarEntry.isDirectory()) {
                     String className = jarPathName.substring(0, jarPathName.lastIndexOf('.')).replace('/', '.');
                     classNames.add(className);
                 }
