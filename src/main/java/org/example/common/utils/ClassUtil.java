@@ -1,10 +1,7 @@
 package org.example.common.utils;
 
-import cn.hutool.core.collection.EnumerationIter;
-
 import java.io.File;
 import java.io.IOException;
-import java.net.JarURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Enumeration;
@@ -44,10 +41,10 @@ public class ClassUtil {
      */
     public static List<Class<?>> getClasses(String packageName) {
         List<String> classNames = getClassName(packageName);
-        return classNames.stream().map(className -> {
-            Class<?> clazz = null;
+        List<Class<?>> classes = new ArrayList<>();
+        for (String className : classNames) {
             try {
-                clazz = Class.forName(className);
+                classes.add(Class.forName(className));
             } catch (NoClassDefFoundError | ClassNotFoundException e) {
                 // 由于依赖库导致的类无法加载，直接跳过此类
             } catch (UnsupportedClassVersionError e) {
@@ -55,8 +52,8 @@ public class ClassUtil {
             } catch (Exception e) {
                 throw new RuntimeException(e);
             }
-            return clazz;
-        }).collect(Collectors.toList());
+        }
+        return classes;
     }
 
     /**
