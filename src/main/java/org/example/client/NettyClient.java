@@ -10,20 +10,25 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.example.client.handler.ClientMessageHandler;
+import org.example.common.annotation.Autowired;
+import org.example.common.annotation.Component;
 import org.example.common.config.Configuration;
 import org.example.common.handler.MessageDecoder;
 import org.example.common.handler.MessageEncoder;
-import org.example.common.handler.MessageHandler;
 import org.example.server.handler.ServerHeartBeatHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
+@Component
 public class NettyClient {
-    private Configuration configuration;
 
-    public NettyClient(Configuration configuration) {
-        this.configuration = configuration;
-    }
+    private static final Logger LOGGER = LoggerFactory.getLogger(NettyClient.class);
+
+    @Autowired
+    private Configuration configuration;
 
     public void start() {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
@@ -46,7 +51,7 @@ public class NettyClient {
                             ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
                             ch.pipeline().addLast(new MessageEncoder());
                             ch.pipeline().addLast(new MessageDecoder());
-                            ch.pipeline().addLast(new MessageHandler());
+                            ch.pipeline().addLast(new ClientMessageHandler());
                         }
                     });
             ChannelFuture future = bootstrap.connect(configuration.host(), configuration.port()).sync();

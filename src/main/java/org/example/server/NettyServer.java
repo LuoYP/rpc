@@ -55,10 +55,13 @@ public class NettyServer {
                             ch.pipeline().addLast(new ServerMessageHandler());
                         }
                     });
-            ChannelFuture future = bootstrap.bind(configuration.port()).sync();
+            ChannelFuture future = bootstrap.bind(configuration.host(), configuration.port()).sync();
             future.channel().closeFuture().sync();
         } catch (Exception e) {
-
+            throw new RuntimeException();
+        } finally {
+            bossGroup.shutdownGracefully();
+            workerGroup.shutdownGracefully();
         }
     }
 }

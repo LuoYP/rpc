@@ -2,9 +2,11 @@ package org.example;
 
 import cn.hutool.core.util.ClassUtil;
 import io.netty.channel.Channel;
+import org.example.client.Cookies;
+import org.example.client.NettyClient;
+import org.example.client.annotation.RpcClientApplication;
 import org.example.common.annotation.Component;
 import org.example.common.annotation.RpcService;
-import org.example.server.annotation.RpcServerApplication;
 import org.example.common.constant.Constants;
 import org.example.common.constant.RpcStatusCode;
 import org.example.common.context.Factory;
@@ -12,9 +14,6 @@ import org.example.common.model.RpcFile;
 import org.example.common.model.RpcRequest;
 import org.example.common.model.RpcResponse;
 import org.example.common.sender.RpcSender;
-import org.example.common.utils.CharSequenceUtil;
-import org.example.server.NettyServer;
-import org.example.server.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,9 +23,9 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 
-public class RpcServer {
+public class RpcClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RpcServer.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpcClient.class);
 
     private static final Function<Class<?>, Object> PROXY_GENERATOR = clazz -> {
         Object defaultObject = new Object();
@@ -36,13 +35,10 @@ public class RpcServer {
                 return method.invoke(defaultObject, args);
             } else {
                 //通过netty发起远程过程调用
-                String remote = (String) args[0];
-                if (CharSequenceUtil.isEmpty(remote)) {
-                    throw new RuntimeException("remote IP is empty");
-                }
-                Channel channel = Session.ACTIVE_CHANNEL.get(remote);
-                if (Objects.isNull(channel)) {
-                    throw new RuntimeException("remote is off-line");
+                Cookies cookies = (Cookies) Factory.BEAN_WAREHOUSE.get(Cookies.class);
+                Channel server = cookies.server();
+                if (Objects.isNull(server)) {
+                    throw new RuntimeException("server is off-line");
                 }
                 //构造RPC请求
                 String className = clazz.getName();
@@ -56,7 +52,7 @@ public class RpcServer {
                         .buildRpcContent(args);
                 //发送请求
                 RpcSender sender = (RpcSender) Factory.BEAN_WAREHOUSE.get(RpcSender.class);
-                RpcResponse rpcResponse = sender.send(rpcRequest, channel);
+                RpcResponse rpcResponse = sender.send(rpcRequest, server);
                 RpcStatusCode status = rpcResponse.code();
                 if (RpcStatusCode.OK.equals(status)) {
                     return rpcResponse.content();
@@ -66,22 +62,21 @@ public class RpcServer {
         });
     };
 
-
     /**
      * 初始化服务环境
-     * 启动netty服务
+     * 启动netty客户端
      */
     public static void run(Class<?> mainClazz) {
         //初始化需要反射创建的对象
         Set<Class<?>> componentClasses = new HashSet<>();
         componentClasses.addAll(ClassUtil.scanPackageByAnnotation(mainClazz.getPackageName(), Component.class));
-        componentClasses.addAll(ClassUtil.scanPackageByAnnotation(RpcServer.class.getPackageName(), Component.class));
+        componentClasses.addAll(ClassUtil.scanPackageByAnnotation(RpcClient.class.getPackageName(), Component.class));
         Factory.initBean(componentClasses);
 
         //初始化需要代理的RPC接口
-        RpcServerApplication annotation = mainClazz.getAnnotation(RpcServerApplication.class);
+        RpcClientApplication annotation = mainClazz.getAnnotation(RpcClientApplication.class);
         if (Objects.isNull(annotation)) {
-            throw new RuntimeException("you must statement RpcServerApplication on your starter!");
+            throw new RuntimeException("you must statement RpcClientApplication on your starter!");
         }
         Factory.instantiationRpcApi(PROXY_GENERATOR, annotation.rpcApiPackages());
         Set<Class<?>> rpcServiceClasses = ClassUtil.scanPackageByAnnotation("", RpcService.class);
@@ -89,9 +84,9 @@ public class RpcServer {
 
         //启动Netty服务
         Thread thread = new Thread(() -> {
-            NettyServer nettyServer = (NettyServer) Factory.BEAN_WAREHOUSE.get(NettyServer.class);
-            nettyServer.start();
-        }, "netty-server");
+            NettyClient nettyClient = (NettyClient) Factory.BEAN_WAREHOUSE.get(NettyClient.class);
+            nettyClient.start();
+        }, "netty-client");
         thread.start();
     }
 }

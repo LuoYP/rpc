@@ -1,19 +1,27 @@
 package org.example.common.context;
 
+import cn.hutool.core.util.ClassUtil;
 import org.example.common.annotation.Autowired;
 import org.example.common.annotation.Component;
+import org.example.common.annotation.RpcService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
 public class Factory {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(Factory.class);
+
     public static final Map<Class<?>, Object> BEAN_WAREHOUSE = new ConcurrentHashMap<>();
 
-    public static void initBean(List<Class<?>> classes) {
+    public static void initBean(Set<Class<?>> classes) {
         for (Class<?> clazz : classes) {
             Component annotation = clazz.getAnnotation(Component.class);
             if (Objects.isNull(annotation)) {
@@ -42,6 +50,35 @@ public class Factory {
                 setValue(instance, fieldObject, field);
             }
             BEAN_WAREHOUSE.put(clazz, instance);
+        }
+    }
+
+    public static void instantiationRpcApi(Function<Class<?>, Object> proxyGenerator, String... rpcApiPackages) {
+        Set<Class<?>> interfaceClasses = new HashSet<>();
+        for (String rpcApiPackage : rpcApiPackages) {
+            interfaceClasses.addAll(ClassUtil.scanPackage(rpcApiPackage));
+        }
+        if (interfaceClasses.isEmpty()) {
+            throw new RuntimeException("you must statement rpc remote interface!");
+        }
+        LOGGER.info("find rpc api, total {}", interfaceClasses.size());
+        interfaceClasses.forEach(clazz -> {
+            BEAN_WAREHOUSE.put(clazz, proxyGenerator.apply(clazz));
+        });
+    }
+
+    public static void instantiationRpcService(Set<Class<?>> classes) {
+        for (Class<?> clazz : classes) {
+            RpcService annotation = clazz.getAnnotation(RpcService.class);
+            if (Objects.isNull(annotation)) {
+                continue;
+            }
+            Class<?> interfaceClazz = clazz.getInterfaces()[0];
+            //已经存在代理对象了,说明接口与实现定义在一起了,忽略
+            if (BEAN_WAREHOUSE.containsKey(interfaceClazz)) {
+                continue;
+            }
+            BEAN_WAREHOUSE.put(interfaceClazz, newInstance(clazz));
         }
     }
 

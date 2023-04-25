@@ -4,11 +4,11 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.Promise;
 import org.example.common.constant.RpcStatusCode;
+import org.example.common.context.Factory;
 import org.example.common.model.RpcLine;
 import org.example.common.model.RpcRequest;
 import org.example.common.model.RpcResponse;
 import org.example.common.sender.RpcSender;
-import org.example.communication.interfaces.ClassCollection;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -28,23 +28,22 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
             Class<?>[] parameterTypes = rpcLine.parameterTypes();
             Object[] parameters = ((RpcRequest) msg).rpcContent().content();
 
-            //获取接口的实现类,反射调用实现接口的方法
-            Class<?> implClass = ClassCollection.IMPL_CLASS.get(requestClass.getName());
-            if (Objects.isNull(implClass)) {
+            //获取实现类对象
+            if (!Factory.BEAN_WAREHOUSE.containsKey(requestClass)) {
                 rpcResponse.setCode(RpcStatusCode.NOT_FOUND);
                 ctx.writeAndFlush(rpcResponse);
                 return;
             }
-            Object instance = implClass.getDeclaredConstructor().newInstance();
+            Object instance = Factory.BEAN_WAREHOUSE.get(requestClass);
             Method method;
             Object result = null;
 
             try {
                 if (parameterTypes == null || parameterTypes.length == 0) {
-                    method = implClass.getMethod(requestMethod);
+                    method = requestClass.getMethod(requestMethod);
                     result = method.invoke(instance);
                 } else {
-                    method = implClass.getDeclaredMethod(requestMethod, parameterTypes);
+                    method = requestClass.getDeclaredMethod(requestMethod, parameterTypes);
                     result = method.invoke(instance, parameters);
                 }
             } catch (Exception e) {
