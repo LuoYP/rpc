@@ -45,7 +45,7 @@ public class NettyServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new IdleStateHandler(0, 0, 120, TimeUnit.SECONDS));
+                            ch.pipeline().addLast(new IdleStateHandler(120, 0, 0, TimeUnit.SECONDS));
                             ch.pipeline().addLast(new ServerHeartBeatHandler());
                             //长度用int就可以表示了，所以长度域取4个字节
                             //长度域不是业务消息的内容，消息实际内容忽略长度域的4个字节

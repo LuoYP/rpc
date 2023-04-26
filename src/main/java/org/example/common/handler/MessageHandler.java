@@ -3,6 +3,7 @@ package org.example.common.handler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.util.concurrent.Promise;
+import org.example.common.constant.Constants;
 import org.example.common.constant.RpcStatusCode;
 import org.example.common.context.Factory;
 import org.example.common.model.RpcLine;
@@ -17,8 +18,12 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-
+        System.out.println("receive a message");
         if (msg instanceof RpcRequest) {
+            if (Constants.HEART_BEAT == ((RpcRequest) msg).rpcHeader().messageType()) {
+                //心跳消息不做业务处理，直接返回
+                return;
+            }
             RpcResponse rpcResponse = new RpcResponse();
             rpcResponse.setRpcHeader(((RpcRequest) msg).rpcHeader()).setCode(RpcStatusCode.OK);
 
@@ -31,7 +36,7 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
             //获取实现类对象
             if (!Factory.BEAN_WAREHOUSE.containsKey(requestClass)) {
                 rpcResponse.setCode(RpcStatusCode.NOT_FOUND);
-                ctx.writeAndFlush(rpcResponse);
+                ctx.channel().writeAndFlush(rpcResponse);
                 return;
             }
             Object instance = Factory.BEAN_WAREHOUSE.get(requestClass);
@@ -50,7 +55,7 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
                 rpcResponse.setCode(RpcStatusCode.SERVER_ERROR);
             }
             rpcResponse.setContent(result);
-            ctx.writeAndFlush(rpcResponse);
+            ctx.channel().writeAndFlush(rpcResponse);
         } else if (msg instanceof RpcResponse) {
             Promise<RpcResponse> rpcResponsePromise = RpcSender.RPC_RESPONSE.get(((RpcResponse) msg).rpcHeader().id());
             //超时会删除RPC_RESPONSE中对应的key，promise可能不存在

@@ -10,6 +10,7 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
+import org.example.client.handler.ClientHeartBeatHandler;
 import org.example.client.handler.ClientMessageHandler;
 import org.example.common.annotation.Autowired;
 import org.example.common.annotation.Component;
@@ -44,8 +45,8 @@ public class NettyClient {
                     .handler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new IdleStateHandler(0, 0, 120, TimeUnit.SECONDS));
-                            ch.pipeline().addLast(new ServerHeartBeatHandler());
+                            ch.pipeline().addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS));
+                            ch.pipeline().addLast(new ClientHeartBeatHandler());
                             //长度用int就可以表示了，所以长度域取4个字节
                             //长度域不是业务消息的内容，消息实际内容忽略长度域的4个字节
                             ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
