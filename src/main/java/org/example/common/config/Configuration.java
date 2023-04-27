@@ -22,9 +22,9 @@ public class Configuration {
     //默认通讯端口8080
     private Integer port = 8080;
 
-    private Integer idleSeconds = 60;
-
     private String host = "127.0.0.1";
+
+    private Integer reconnectTimes = 3;
 
     public Configuration() {
         loadProperties();
@@ -34,12 +34,12 @@ public class Configuration {
         return port;
     }
 
-    public Integer idleSeconds() {
-        return idleSeconds;
-    }
-
     public String host() {
         return host;
+    }
+
+    public Integer reconnectTimes() {
+        return reconnectTimes;
     }
 
     //写死配置文件路径

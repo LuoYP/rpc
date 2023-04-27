@@ -9,8 +9,6 @@ import org.example.common.constant.Constants;
 import org.example.common.model.RpcHeader;
 import org.example.common.model.RpcRequest;
 
-import java.time.LocalDateTime;
-
 @Sharable
 public class ClientHeartBeatHandler extends ChannelInboundHandlerAdapter {
 
@@ -28,7 +26,6 @@ public class ClientHeartBeatHandler extends ChannelInboundHandlerAdapter {
             if (state.equals(IdleState.WRITER_IDLE)) {
                 RpcHeader rpcHeader = new RpcHeader().setMessageType(Constants.HEART_BEAT);
                 RpcRequest rpcRequest = new RpcRequest().setRpcHeader(rpcHeader);
-                System.out.println("send heart" + LocalDateTime.now());
                 ctx.channel().writeAndFlush(rpcRequest);
             }
         }

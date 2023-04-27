@@ -55,7 +55,7 @@ public class RpcServer {
                         .buildRpcHeader(id, messageType, null)
                         .buildRpcContent(args);
                 //发送请求
-                RpcSender sender = (RpcSender) Factory.BEAN_WAREHOUSE.get(RpcSender.class);
+                RpcSender sender = (RpcSender) Factory.getBean(RpcSender.class);
                 RpcResponse rpcResponse = sender.send(rpcRequest, channel);
                 RpcStatusCode status = rpcResponse.code();
                 if (RpcStatusCode.OK.equals(status)) {
@@ -89,7 +89,7 @@ public class RpcServer {
 
         //启动Netty服务
         Thread thread = new Thread(() -> {
-            NettyServer nettyServer = (NettyServer) Factory.BEAN_WAREHOUSE.get(NettyServer.class);
+            NettyServer nettyServer = (NettyServer) Factory.getBean(NettyServer.class);
             nettyServer.start();
         }, "netty-server");
         thread.start();

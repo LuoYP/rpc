@@ -18,7 +18,6 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        System.out.println("receive a message");
         if (msg instanceof RpcRequest) {
             if (Constants.HEART_BEAT == ((RpcRequest) msg).rpcHeader().messageType()) {
                 //心跳消息不做业务处理，直接返回
@@ -39,7 +38,7 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
                 ctx.channel().writeAndFlush(rpcResponse);
                 return;
             }
-            Object instance = Factory.BEAN_WAREHOUSE.get(requestClass);
+            Object instance = Factory.getBean(requestClass);
             Method method;
             Object result = null;
 

@@ -82,6 +82,14 @@ public class Factory {
         }
     }
 
+    public static Object getBean(Class<?> clazz) {
+        Object bean = BEAN_WAREHOUSE.get(clazz);
+        if (Objects.isNull(bean)) {
+            throw new RuntimeException("can not find target bean");
+        }
+        return bean;
+    }
+
     private static Object newInstance(Class<?> clazz) {
         Object autoCreate;
         try {
