@@ -8,6 +8,8 @@ import org.example.common.annotation.Component;
 import org.example.common.constant.RpcStatusCode;
 import org.example.common.model.RpcRequest;
 import org.example.common.model.RpcResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -15,6 +17,8 @@ import java.util.concurrent.TimeUnit;
 
 @Component
 public class RpcSender {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RpcSender.class);
 
     public static final Map<Long, Promise<RpcResponse>> RPC_RESPONSE = new ConcurrentHashMap<>();
 
@@ -29,6 +33,7 @@ public class RpcSender {
         try {
             rpcResponse = promise.get(30, TimeUnit.SECONDS);
         } catch (Exception e) {
+            LOGGER.warn("request {} time out", request.rpcHeader().id());
             rpcResponse = new RpcResponse();
             rpcResponse.setCode(RpcStatusCode.TIMEOUT).setRpcHeader(request.rpcHeader()).setContent(null);
         }

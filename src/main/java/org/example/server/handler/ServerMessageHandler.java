@@ -6,6 +6,8 @@ import io.netty.channel.ChannelHandlerContext;
 import org.example.common.handler.MessageHandler;
 import org.example.common.utils.CharSequenceUtil;
 import org.example.server.Session;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 
@@ -18,11 +20,14 @@ import java.net.InetSocketAddress;
 @Sharable
 public class ServerMessageHandler extends MessageHandler {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ServerMessageHandler.class);
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         Channel channel = ctx.channel();
         InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
         String ipAddress = socketAddress.getAddress().getHostAddress();
+        LOGGER.info("receive a connect! client is {}", ipAddress);
         Session.ACTIVE_CHANNEL.putIfAbsent(ipAddress, channel);
         super.channelActive(ctx);
     }
@@ -32,6 +37,7 @@ public class ServerMessageHandler extends MessageHandler {
         Channel channel = ctx.channel();
         InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
         String ipAddress = socketAddress.getAddress().getHostAddress();
+        LOGGER.info("client {} is off-line", ipAddress);
         Session.ACTIVE_CHANNEL.entrySet().removeIf(e -> CharSequenceUtil.equals(ipAddress, e.getKey()));
         super.channelInactive(ctx);
     }

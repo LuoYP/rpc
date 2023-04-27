@@ -22,6 +22,7 @@ public class Factory {
     public static final Map<Class<?>, Object> BEAN_WAREHOUSE = new ConcurrentHashMap<>();
 
     public static void initBean(Set<Class<?>> classes) {
+        LOGGER.debug("init the bean container!");
         for (Class<?> clazz : classes) {
             Component annotation = clazz.getAnnotation(Component.class);
             if (Objects.isNull(annotation)) {
@@ -54,6 +55,7 @@ public class Factory {
     }
 
     public static void instantiationRpcApi(Function<Class<?>, Object> proxyGenerator, String... rpcApiPackages) {
+        LOGGER.debug("start implement the rpc interface!");
         Set<Class<?>> interfaceClasses = new HashSet<>();
         for (String rpcApiPackage : rpcApiPackages) {
             interfaceClasses.addAll(ClassUtil.scanPackage(rpcApiPackage));

@@ -25,7 +25,7 @@ public class ServerHeartBeatHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             IdleState state = ((IdleStateEvent) evt).state();
             if (state.equals(IdleState.READER_IDLE)) {
-                LOGGER.info("client is free, close!");
+                LOGGER.info("client heart beat is stop, release the resource!");
                 ctx.close();
             }
         }

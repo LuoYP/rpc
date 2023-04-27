@@ -6,12 +6,13 @@ import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.channel.ChannelInitializer;
 import io.netty.util.Timeout;
 import io.netty.util.Timer;
 import io.netty.util.TimerTask;
 import org.example.client.Cookies;
 import org.example.common.context.Factory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
@@ -21,6 +22,8 @@ import java.util.concurrent.TimeUnit;
  */
 @Sharable
 public class ClientWatchDog extends ChannelInboundHandlerAdapter implements TimerTask {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ClientWatchDog.class);
 
     private Timer timer;
 
@@ -51,6 +54,7 @@ public class ClientWatchDog extends ChannelInboundHandlerAdapter implements Time
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
+        LOGGER.info("connect to server success!");
         Channel server = ctx.channel();
         Cookies cookies = (Cookies) Factory.getBean(Cookies.class);
         cookies.setServer(server);
@@ -71,7 +75,8 @@ public class ClientWatchDog extends ChannelInboundHandlerAdapter implements Time
         cookies.setServer(null);
         if (retryCount < reconnectTimes) {
             retryCount++;
-            int timeout = 1 << retryCount;
+            int timeout = Math.min(1 << retryCount, 30);
+            LOGGER.info("the connection closed! reconnect after {} seconds!", timeout);
             timer.newTimeout(this, timeout, TimeUnit.SECONDS);
         }
         super.channelInactive(ctx);
@@ -81,6 +86,7 @@ public class ClientWatchDog extends ChannelInboundHandlerAdapter implements Time
     public void run(Timeout timeout) throws Exception {
         ChannelFuture future = bootstrap.connect(host, port);
         future.sync();
+        LOGGER.info("client reconnect success!");
         future.channel().closeFuture().sync();
     }
 }

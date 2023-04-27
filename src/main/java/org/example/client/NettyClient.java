@@ -37,7 +37,6 @@ public class NettyClient {
 
     public void start() {
         EventLoopGroup workerGroup = new NioEventLoopGroup();
-
         Bootstrap bootstrap = new Bootstrap();
         bootstrap.group(workerGroup)
                 .channel(NioSocketChannel.class)
@@ -62,7 +61,9 @@ public class NettyClient {
         try {
             ChannelFuture future = bootstrap.connect(configuration.host(), configuration.port());
             future.sync();
+            LOGGER.info("client start!");
             future.channel().closeFuture().sync();
+            LOGGER.info("client closed!");
         } catch (Exception e) {
             throw new RuntimeException();
         }

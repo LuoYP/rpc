@@ -17,11 +17,15 @@ import org.example.common.handler.MessageDecoder;
 import org.example.common.handler.MessageEncoder;
 import org.example.server.handler.ServerHeartBeatHandler;
 import org.example.server.handler.ServerMessageHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.TimeUnit;
 
 @Component
 public class NettyServer {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(NettyServer.class);
 
     @Autowired
     private Configuration configuration;
@@ -56,12 +60,15 @@ public class NettyServer {
                         }
                     });
             ChannelFuture future = bootstrap.bind(configuration.host(), configuration.port()).sync();
+            LOGGER.info("server is start!");
             future.channel().closeFuture().sync();
+            LOGGER.info("server is close!");
         } catch (Exception e) {
             throw new RuntimeException();
         } finally {
             bossGroup.shutdownGracefully();
             workerGroup.shutdownGracefully();
+            LOGGER.info("release the thread-pool resource!");
         }
     }
 }

@@ -10,14 +10,19 @@ import org.example.common.model.RpcLine;
 import org.example.common.model.RpcRequest;
 import org.example.common.model.RpcResponse;
 import org.example.common.sender.RpcSender;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
 import java.util.Objects;
 
 public class MessageHandler extends ChannelInboundHandlerAdapter {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(MessageHandler.class);
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+        LOGGER.debug("receive a rpc message!");
         if (msg instanceof RpcRequest) {
             if (Constants.HEART_BEAT == ((RpcRequest) msg).rpcHeader().messageType()) {
                 //心跳消息不做业务处理，直接返回
@@ -41,7 +46,7 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
             Object instance = Factory.getBean(requestClass);
             Method method;
             Object result = null;
-
+            long start = System.currentTimeMillis();
             try {
                 if (parameterTypes == null || parameterTypes.length == 0) {
                     method = requestClass.getMethod(requestMethod);
@@ -53,6 +58,7 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
             } catch (Exception e) {
                 rpcResponse.setCode(RpcStatusCode.SERVER_ERROR);
             }
+            LOGGER.debug("request {}-{} cost:{}s", requestClass.getName(), requestMethod, (System.currentTimeMillis() - start) / 1000);
             rpcResponse.setContent(result);
             ctx.channel().writeAndFlush(rpcResponse);
         } else if (msg instanceof RpcResponse) {
