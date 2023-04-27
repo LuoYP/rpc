@@ -11,7 +11,7 @@ public class ClientTest {
     public static void main(String[] args) throws Exception{
         RpcClient.run(ClientTest.class);
         Thread.sleep(20000);
-        TimeServer timeServer = (TimeServer)Factory.BEAN_WAREHOUSE.get(TimeServer.class);
+        TimeServer timeServer = (TimeServer)Factory.getBean(TimeServer.class);
         System.out.println(timeServer.now());
     }
 }

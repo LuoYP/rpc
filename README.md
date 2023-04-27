@@ -15,11 +15,11 @@ public class Application {
 #### Client
 ```java
 @RpcClientApplication(rpcApiPackages = "your.rpc.api.package")
-public class ClientTest {
+public class Application {
 
     public static void main(String[] args) {
         RpcClient.run(ClientTest.class);
-        TimeServer timeServer = (TimeServer)Factory.BEAN_WAREHOUSE.get(TimeServer.class);
+        TimeServer timeServer = (TimeServer)Factory.getBean(TimeServer.class);
         System.out.println(timeServer.now());
     }
 }
