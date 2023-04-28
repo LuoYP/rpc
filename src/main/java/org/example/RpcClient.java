@@ -10,7 +10,6 @@ import org.example.common.annotation.RpcService;
 import org.example.common.constant.Constants;
 import org.example.common.constant.RpcStatusCode;
 import org.example.common.context.Factory;
-import org.example.common.model.RpcFile;
 import org.example.common.model.RpcRequest;
 import org.example.common.model.RpcResponse;
 import org.example.common.sender.RpcSender;
@@ -45,7 +44,7 @@ public class RpcClient {
                 String methodName = method.getName();
                 Class<?>[] parameterTypes = method.getParameterTypes();
                 long id = Constants.ID.getAndIncrement();
-                byte messageType = method.getReturnType().equals(RpcFile.class) ? Constants.FILE : Constants.COMMENT;
+                byte messageType = Constants.COMMENT;
                 RpcRequest rpcRequest = new RpcRequest();
                 rpcRequest.buildRpcLine(className, methodName, parameterTypes)
                         .buildRpcHeader(id, messageType, null)
