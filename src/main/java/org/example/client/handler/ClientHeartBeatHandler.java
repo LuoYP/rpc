@@ -5,7 +5,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.timeout.IdleState;
 import io.netty.handler.timeout.IdleStateEvent;
-import org.example.common.constant.Constants;
+import org.example.common.constant.MessageType;
 import org.example.common.model.RpcHeader;
 import org.example.common.model.RpcRequest;
 
@@ -24,7 +24,7 @@ public class ClientHeartBeatHandler extends ChannelInboundHandlerAdapter {
         if (evt instanceof IdleStateEvent) {
             IdleState state = ((IdleStateEvent) evt).state();
             if (state.equals(IdleState.WRITER_IDLE)) {
-                RpcHeader rpcHeader = new RpcHeader().setMessageType(Constants.HEART_BEAT);
+                RpcHeader rpcHeader = new RpcHeader().setMessageType(MessageType.HEART_BEAT);
                 RpcRequest rpcRequest = new RpcRequest().setRpcHeader(rpcHeader);
                 ctx.channel().writeAndFlush(rpcRequest);
             }

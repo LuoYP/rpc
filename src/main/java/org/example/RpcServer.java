@@ -4,8 +4,8 @@ import cn.hutool.core.util.ClassUtil;
 import io.netty.channel.Channel;
 import org.example.common.annotation.Component;
 import org.example.common.annotation.RpcService;
-import org.example.server.annotation.RpcServerApplication;
 import org.example.common.constant.Constants;
+import org.example.common.constant.MessageType;
 import org.example.common.constant.RpcStatusCode;
 import org.example.common.context.Factory;
 import org.example.common.model.RpcRequest;
@@ -14,6 +14,7 @@ import org.example.common.sender.RpcSender;
 import org.example.common.utils.CharSequenceUtil;
 import org.example.server.NettyServer;
 import org.example.server.Session;
+import org.example.server.annotation.RpcServerApplication;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -48,7 +49,7 @@ public class RpcServer {
                 String methodName = method.getName();
                 Class<?>[] parameterTypes = method.getParameterTypes();
                 long id = Constants.ID.getAndIncrement();
-                byte messageType = Constants.COMMENT;
+                byte messageType = MessageType.COMMENT;
                 RpcRequest rpcRequest = new RpcRequest();
                 rpcRequest.buildRpcLine(className, methodName, parameterTypes)
                         .buildRpcHeader(id, messageType, null)
