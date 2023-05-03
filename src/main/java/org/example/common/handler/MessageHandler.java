@@ -3,7 +3,7 @@ package org.example.common.handler;
 import cn.hutool.core.util.ClassUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import org.example.common.constant.Constants;
+import org.example.common.constant.MessageType;
 import org.example.common.constant.RpcStatusCode;
 import org.example.common.context.Factory;
 import org.example.common.model.RpcLine;
@@ -34,9 +34,9 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
     private void processRequest(ChannelHandlerContext ctx, RpcRequest request) {
         var messageType = request.rpcHeader().messageType();
         switch (messageType) {
-            case Constants.HEART_BEAT -> processHeatBeatRequest();
-            case Constants.COMMENT -> processCommonRequest(ctx, request);
-            case Constants.FILE -> processFileRequest(ctx, request);
+            case MessageType.HEART_BEAT -> processHeatBeatRequest();
+            case MessageType.COMMENT -> processCommonRequest(ctx, request);
+            case MessageType.FILE_IN -> processFileRequest(ctx, request);
             default -> {
             }
         }
