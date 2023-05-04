@@ -1,11 +1,14 @@
 package org.example.common.handler;
 
 import cn.hutool.core.util.ClassUtil;
+import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.example.common.constant.MessageType;
+import org.example.common.constant.RpcContainer;
 import org.example.common.constant.RpcStatusCode;
 import org.example.common.context.Factory;
+import org.example.common.io.RpcFile;
 import org.example.common.model.RpcLine;
 import org.example.common.model.RpcRequest;
 import org.example.common.model.RpcResponse;
@@ -43,11 +46,26 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void processResponse(RpcResponse response) {
-        var rpcResponsePromise = RpcSender.RPC_RESPONSE.get(response.rpcHeader().id());
-        //超时会删除RPC_RESPONSE中对应的key，promise可能不存在
-        if (Objects.nonNull(rpcResponsePromise)) {
-            rpcResponsePromise.setSuccess(response);
+        var messageType = response.rpcHeader().messageType();
+        switch (messageType) {
+            case MessageType.FILE_OUT -> {
+                long id = response.rpcHeader().id();
+                RpcFile rpcFile = RpcContainer.TRANSFERRING_FILES.get(id);
+                ByteBuf fileMemoryCache = rpcFile.inputStream().fileMemoryCache();
+                if (rpcFile.inputStream().canWrite().get()) {
+                    fileMemoryCache.clear();
+                    fileMemoryCache.writeBytes((byte[]) response.content());
+                }
+            }
+            default -> {
+                var rpcResponsePromise = RpcSender.RPC_RESPONSE.get(response.rpcHeader().id());
+                //超时会删除RPC_RESPONSE中对应的key，promise可能不存在
+                if (Objects.nonNull(rpcResponsePromise)) {
+                    rpcResponsePromise.setSuccess(response);
+                }
+            }
         }
+
     }
 
     private void processHeatBeatRequest() {

@@ -2,12 +2,15 @@ package org.example.common.context;
 
 import cn.hutool.core.util.ClassUtil;
 import org.example.common.annotation.Autowired;
+import org.example.common.annotation.Bean;
 import org.example.common.annotation.Component;
+import org.example.common.annotation.Configuration;
 import org.example.common.annotation.RpcService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
@@ -24,33 +27,49 @@ public class Factory {
     public static void initBean(Set<Class<?>> classes) {
         LOGGER.debug("init the bean container!");
         for (Class<?> clazz : classes) {
+            Configuration configuration = clazz.getAnnotation(Configuration.class);
+            if (Objects.nonNull(configuration)) {
+                Object configurationObject = newInstance(clazz);
+                Method[] methods = clazz.getMethods();
+                for (Method method : methods) {
+                    Bean bean = method.getAnnotation(Bean.class);
+                    if (Objects.nonNull(bean)) {
+                        try {
+                            Class<?> returnType = method.getReturnType();
+                            Object returnValue = method.invoke(configurationObject);
+                            BEAN_WAREHOUSE.put(returnType, returnValue);
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                }
+            }
             Component annotation = clazz.getAnnotation(Component.class);
-            if (Objects.isNull(annotation)) {
-                continue;
-            }
-            Object instance = BEAN_WAREHOUSE.containsKey(clazz) ? BEAN_WAREHOUSE.get(clazz) : newInstance(clazz);
+            if (Objects.nonNull(annotation)) {
+                Object instance = BEAN_WAREHOUSE.containsKey(clazz) ? BEAN_WAREHOUSE.get(clazz) : newInstance(clazz);
 
-            Field[] fields = clazz.getDeclaredFields();
-            for (Field field : fields) {
-                Autowired autowired = field.getAnnotation(Autowired.class);
-                if (Objects.isNull(autowired)) {
-                    continue;
+                Field[] fields = clazz.getDeclaredFields();
+                for (Field field : fields) {
+                    Autowired autowired = field.getAnnotation(Autowired.class);
+                    if (Objects.isNull(autowired)) {
+                        continue;
+                    }
+                    Class<?> fieldType = field.getType();
+                    Object factoryBean = BEAN_WAREHOUSE.get(fieldType);
+                    if (Objects.nonNull(factoryBean)) {
+                        setValue(instance, factoryBean, field);
+                        continue;
+                    }
+                    Component annotation1 = fieldType.getAnnotation(Component.class);
+                    if (Objects.isNull(annotation1)) {
+                        throw new RuntimeException("inject bean mast statement Component");
+                    }
+                    Object fieldObject = newInstance(fieldType);
+                    BEAN_WAREHOUSE.put(fieldType, fieldObject);
+                    setValue(instance, fieldObject, field);
                 }
-                Class<?> fieldType = field.getType();
-                Component annotation1 = fieldType.getAnnotation(Component.class);
-                if (Objects.isNull(annotation1)) {
-                    throw new RuntimeException("inject bean mast statement Component");
-                }
-                Object factoryBean = BEAN_WAREHOUSE.get(fieldType);
-                if (Objects.nonNull(factoryBean)) {
-                    setValue(instance, factoryBean, field);
-                    continue;
-                }
-                Object fieldObject = newInstance(fieldType);
-                BEAN_WAREHOUSE.put(fieldType, fieldObject);
-                setValue(instance, fieldObject, field);
+                BEAN_WAREHOUSE.put(clazz, instance);
             }
-            BEAN_WAREHOUSE.put(clazz, instance);
         }
     }
 
