@@ -21,25 +21,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 public class RpcFileInputStream extends InputStream {
 
-    private final RpcFile source;
+    private final Channel channel;
 
-    private Channel channel;
+    private final String fileAbsolutePath;
 
-    private String fileAbsolutePath;
-
-    private final AtomicBoolean reading = new AtomicBoolean(Boolean.TRUE);
-
-    private ByteBuf fileMemoryCache = Unpooled.buffer(1024 * 1024);
+    private final ByteBuf fileMemoryCache = Unpooled.buffer(1024 * 1024);
 
     private final AtomicBoolean isFirst = new AtomicBoolean(Boolean.TRUE);
 
-    private final AtomicBoolean isFinish = new AtomicBoolean(Boolean.FALSE);
-
-    private final AtomicBoolean canWrite = new AtomicBoolean(Boolean.TRUE);
-
-    public RpcFileInputStream(Channel channel, RpcFile source) {
+    public RpcFileInputStream(Channel channel, String fileAbsolutePath) {
         this.channel = channel;
-        this.source = source;
+        this.fileAbsolutePath = fileAbsolutePath;
 
     }
 
@@ -60,23 +52,7 @@ public class RpcFileInputStream extends InputStream {
 
     @Override
     public void close() throws IOException {
-        reading.set(Boolean.FALSE);
-    }
-
-    public AtomicBoolean reading() {
-        return reading;
-    }
-
-    public ByteBuf fileMemoryCache() {
-        return fileMemoryCache;
-    }
-
-    public AtomicBoolean isFinish() {
-        return isFinish;
-    }
-
-    public AtomicBoolean canWrite() {
-        return canWrite;
+        super.close();
     }
 
     private void loadPartFileFromRemote(String fileAbsolutePath, Long readIndex) {

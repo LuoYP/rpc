@@ -1,14 +1,11 @@
 package org.example.common.handler;
 
 import cn.hutool.core.util.ClassUtil;
-import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import org.example.common.constant.MessageType;
-import org.example.common.constant.RpcContainer;
 import org.example.common.constant.RpcStatusCode;
 import org.example.common.context.Factory;
-import org.example.common.io.RpcFile;
 import org.example.common.model.RpcLine;
 import org.example.common.model.RpcRequest;
 import org.example.common.model.RpcResponse;
@@ -39,7 +36,8 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
         switch (messageType) {
             case MessageType.HEART_BEAT -> processHeatBeatRequest();
             case MessageType.COMMENT -> processCommonRequest(ctx, request);
-            case MessageType.FILE_IN -> processFileRequest(ctx, request);
+            case MessageType.FILE_IN -> processFileInRequest(ctx, request);
+            case MessageType.FILE_OUT -> processFileOutRequest(ctx, request);
             default -> {
             }
         }
@@ -103,6 +101,19 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
         ctx.channel().writeAndFlush(rpcResponse);
     }
 
-    private void processFileRequest(ChannelHandlerContext ctx, RpcRequest request) {
+    private void processFileInRequest(ChannelHandlerContext ctx, RpcRequest request) {
+
+    }
+
+    /**
+     * 请求文件输出流,每次读取1M的文件内容写出
+     *
+     * @param ctx
+     * @param request
+     */
+    private void processFileOutRequest(ChannelHandlerContext ctx, RpcRequest request) {
+        Object[] content = request.rpcContent().content();
+        String filePath = (String) content[0];
+        Long readIndex = (Long) content[1];
     }
 }
