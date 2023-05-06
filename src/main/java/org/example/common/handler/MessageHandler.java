@@ -50,12 +50,7 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
         switch (messageType) {
             case MessageType.FILE_OUT -> {
                 long id = response.rpcHeader().id();
-                RpcFile rpcFile = RpcContainer.TRANSFERRING_FILES.get(id);
-                ByteBuf fileMemoryCache = rpcFile.inputStream().fileMemoryCache();
-                if (rpcFile.inputStream().canWrite().get()) {
-                    fileMemoryCache.clear();
-                    fileMemoryCache.writeBytes((byte[]) response.content());
-                }
+
             }
             default -> {
                 var rpcResponsePromise = RpcSender.RPC_RESPONSE.get(response.rpcHeader().id());

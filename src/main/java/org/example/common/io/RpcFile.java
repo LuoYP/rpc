@@ -10,7 +10,6 @@ public class RpcFile {
 
     private String fileAbsolutePath;
 
-
     private RpcFileInputStream inputStream;
 
     private RpcFileOutputStream outputStream;
