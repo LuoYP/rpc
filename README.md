@@ -27,7 +27,7 @@ public class Application {
 
 #### File
 ```java
-@RpcClientApplication(rpcApiPackages = "your.rpc.api.package")
+@RpcServerApplication(rpcApiPackages = "your.rpc.api.package")
 public class Application {
 
     public static void main(String[] args) {
