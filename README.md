@@ -31,7 +31,7 @@ public class Application {
 public class Application {
 
     public static void main(String[] args) {
-        RpcClient.run(Application.class);
+        RpcServer.run(Application.class);
         Thread.sleep(15000);
         RpcFile remoteFile = new RpcFile("127.0.0.1", "remote-file-path");
         File local = FileUtil.file("local-file-path");
