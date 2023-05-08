@@ -2,6 +2,7 @@ package org.example.common.handler;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.file.FileMode;
+import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.ClassUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -129,7 +130,13 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
         byte[] fileContent = new byte[1024 * 1024];
         try (RandomAccessFile sourceFile = FileUtil.createRandomAccessFile(FileUtil.file(filePath), FileMode.r)) {
             sourceFile.seek(readIndex);
-            sourceFile.read(fileContent);
+            int read = sourceFile.read(fileContent);
+            //最后一段
+            if (read < fileContent.length) {
+                byte[] finish = new byte[]{};
+                ArrayUtil.copy(fileContent, finish, read);
+                fileContent = finish;
+            }
             rpcResponse.setContent(fileContent);
 
         } catch (Exception e) {
