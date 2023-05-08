@@ -29,21 +29,21 @@ public class ServerTest {
         SystemInfoService proxy = (SystemInfoService) Factory.getBean(SystemInfoService.class);
         Thread.sleep(15000);
         String result = proxy.sayHello("127.0.0.1");
-        LOGGER.debug("receive a result: {}", result);
+        LOGGER.info("receive a result: {}", result);
     }
 
     private static void testRPCFile(String filePath) {
         RpcFile file = new RpcFile("127.0.0.1", filePath);
         File local = FileUtil.file("C:\\Users\\Administrator\\Desktop\\进化的四十六亿重奏.txt");
         long start = currentTimeMillis();
-        LOGGER.debug("start download file!");
+        LOGGER.info("start download file!");
         FileUtil.writeFromStream(file.inputStream(), local);
-        LOGGER.debug("download success,cost {}s!", (currentTimeMillis() - start) / 1000);
+        LOGGER.info("download success,cost {}s!", (currentTimeMillis() - start) / 1000);
 
 
         String sourceHash = MD5.create().digestHex(FileUtil.file(filePath));
-        LOGGER.debug("remote file hash: {}", sourceHash);
+        LOGGER.info("remote file hash: {}", sourceHash);
         String downloadHash = MD5.create().digestHex(FileUtil.file(local));
-        LOGGER.debug("download file hash: {}", downloadHash);
+        LOGGER.info("download file hash: {}", downloadHash);
     }
 }
