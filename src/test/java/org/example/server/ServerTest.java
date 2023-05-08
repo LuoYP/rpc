@@ -4,9 +4,9 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.crypto.digest.MD5;
 import org.example.RpcServer;
 import org.example.common.context.Factory;
-import org.example.common.io.RpcFile;
 import org.example.communication.server.api.SystemInfoService;
 import org.example.server.annotation.RpcServerApplication;
+import org.example.server.io.RpcFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -21,8 +21,8 @@ public class ServerTest {
 
     public static void main(String[] args) throws Exception {
         RpcServer.run(ServerTest.class);
-        Thread.sleep(15000);
-        testRPCFile("G:\\进化的四十六亿重奏.txt");
+//        Thread.sleep(15000);
+//        testRPCFile("G:\\进化的四十六亿重奏.txt");
     }
 
     private static void testRPC() throws Exception {

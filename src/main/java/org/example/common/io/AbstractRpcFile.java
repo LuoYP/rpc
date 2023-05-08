@@ -1,34 +1,24 @@
 package org.example.common.io;
 
-import io.netty.channel.Channel;
-import org.example.server.Session;
-
 /**
  * 对 {@link java.io.File}类型的封装，用于在RPC通信中进行文件基本信息的传输
  * 对外提供输入输出，通过流的操作实现远程文件传输
  */
-public class RpcFile {
+public abstract class AbstractRpcFile {
 
-    private String ip;
+    protected String ip;
 
-    private String fileAbsolutePath;
+    protected String fileAbsolutePath;
 
-    private RpcFileInputStream inputStream;
+    protected RpcFileInputStream inputStream;
 
-    private RpcFileOutputStream outputStream;
-
-    public RpcFile(String ip, String fileAbsolutePath) {
-        this.ip = ip;
-        this.fileAbsolutePath = fileAbsolutePath;
-        Channel channel = Session.ACTIVE_CHANNEL.get(ip);
-        inputStream = new RpcFileInputStream(channel, fileAbsolutePath);
-    }
+    protected RpcFileOutputStream outputStream;
 
     public String ip() {
         return ip;
     }
 
-    public RpcFile setIp(String ip) {
+    public AbstractRpcFile setIp(String ip) {
         this.ip = ip;
         return this;
     }
@@ -37,7 +27,7 @@ public class RpcFile {
         return fileAbsolutePath;
     }
 
-    public RpcFile setFileAbsolutePath(String fileAbsolutePath) {
+    public AbstractRpcFile setFileAbsolutePath(String fileAbsolutePath) {
         this.fileAbsolutePath = fileAbsolutePath;
         return this;
     }
@@ -46,7 +36,7 @@ public class RpcFile {
         return inputStream;
     }
 
-    public RpcFile setInputStream(RpcFileInputStream inputStream) {
+    public AbstractRpcFile setInputStream(RpcFileInputStream inputStream) {
         this.inputStream = inputStream;
         return this;
     }
@@ -55,7 +45,7 @@ public class RpcFile {
         return outputStream;
     }
 
-    public RpcFile setOutputStream(RpcFileOutputStream outputStream) {
+    public AbstractRpcFile setOutputStream(RpcFileOutputStream outputStream) {
         this.outputStream = outputStream;
         return this;
     }
