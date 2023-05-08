@@ -18,9 +18,25 @@ public class Application {
 public class Application {
 
     public static void main(String[] args) {
-        RpcClient.run(ClientTest.class);
+        RpcClient.run(Application.class);
         TimeServer timeServer = (TimeServer)Factory.getBean(TimeServer.class);
         System.out.println(timeServer.now());
+    }
+}
+```
+
+#### File
+```java
+@RpcClientApplication(rpcApiPackages = "your.rpc.api.package")
+public class Application {
+
+    public static void main(String[] args) {
+        RpcClient.run(Application.class);
+        Thread.sleep(15000);
+        RpcFile remoteFile = new RpcFile("127.0.0.1", "remote-file-path");
+        File local = FileUtil.file("local-file-path");
+        //hutool
+        FileUtil.writeFromStream(remoteFile.inputStream(), local);
     }
 }
 ```

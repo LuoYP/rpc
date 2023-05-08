@@ -49,7 +49,7 @@ public class RpcFileInputStream extends InputStream {
         }
         long readIndex = readBytes.addAndGet(fileMemoryCache.readerIndex());
         fileMemoryCache.clear();
-        loadPartFileFromRemote(fileAbsolutePath, readIndex + 1);
+        loadPartFileFromRemote(fileAbsolutePath, readIndex);
         if (!fileMemoryCache.isReadable()) {
             return -1;
         }

@@ -14,7 +14,6 @@ import org.example.common.context.Factory;
 import org.example.common.model.RpcLine;
 import org.example.common.model.RpcRequest;
 import org.example.common.model.RpcResponse;
-import org.example.common.sender.RpcSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,7 +59,7 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
                 }
             }
             default -> {
-                var rpcResponsePromise = RpcSender.RPC_RESPONSE.get(response.rpcHeader().id());
+                var rpcResponsePromise = RpcContainer.RPC_RESPONSE.get(response.rpcHeader().id());
                 //超时会删除RPC_RESPONSE中对应的key，promise可能不存在
                 if (Objects.nonNull(rpcResponsePromise)) {
                     rpcResponsePromise.setSuccess(response);
@@ -132,10 +131,12 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
             sourceFile.seek(readIndex);
             int read = sourceFile.read(fileContent);
             //最后一段
-            if (read < fileContent.length) {
-                byte[] finish = new byte[]{};
+            if (read < fileContent.length && read > 0) {
+                byte[] finish = new byte[read];
                 ArrayUtil.copy(fileContent, finish, read);
                 fileContent = finish;
+            } else if (read == -1) {
+                fileContent = new byte[]{};
             }
             rpcResponse.setContent(fileContent);
 
