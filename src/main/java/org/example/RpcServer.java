@@ -3,6 +3,7 @@ package org.example;
 import cn.hutool.core.util.ClassUtil;
 import io.netty.channel.Channel;
 import org.example.common.annotation.Component;
+import org.example.common.annotation.Configuration;
 import org.example.common.annotation.RpcService;
 import org.example.common.constant.Constants;
 import org.example.common.constant.MessageType;
@@ -76,6 +77,7 @@ public class RpcServer {
         Set<Class<?>> componentClasses = new HashSet<>();
         componentClasses.addAll(ClassUtil.scanPackageByAnnotation(mainClazz.getPackageName(), Component.class));
         componentClasses.addAll(ClassUtil.scanPackageByAnnotation(RpcServer.class.getPackageName(), Component.class));
+        componentClasses.addAll(ClassUtil.scanPackageByAnnotation(RpcServer.class.getPackageName(), Configuration.class));
         Factory.initBean(componentClasses);
 
         //初始化需要代理的RPC接口

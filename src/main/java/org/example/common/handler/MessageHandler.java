@@ -1,9 +1,13 @@
 package org.example.common.handler;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.file.FileMode;
 import cn.hutool.core.util.ClassUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+import io.netty.util.concurrent.Promise;
 import org.example.common.constant.MessageType;
+import org.example.common.constant.RpcContainer;
 import org.example.common.constant.RpcStatusCode;
 import org.example.common.context.Factory;
 import org.example.common.model.RpcLine;
@@ -13,6 +17,7 @@ import org.example.common.sender.RpcSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.RandomAccessFile;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
@@ -48,7 +53,10 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
         switch (messageType) {
             case MessageType.FILE_OUT -> {
                 long id = response.rpcHeader().id();
-
+                Promise<byte[]> promise = RpcContainer.TRANSFERRING_FILES.get(id);
+                if (Objects.nonNull(promise)) {
+                    promise.setSuccess((byte[]) response.content());
+                }
             }
             default -> {
                 var rpcResponsePromise = RpcSender.RPC_RESPONSE.get(response.rpcHeader().id());
@@ -112,8 +120,21 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
      * @param request
      */
     private void processFileOutRequest(ChannelHandlerContext ctx, RpcRequest request) {
+        RpcResponse rpcResponse = new RpcResponse();
+        rpcResponse.setRpcHeader(request.rpcHeader()).setCode(RpcStatusCode.OK);
+
         Object[] content = request.rpcContent().content();
         String filePath = (String) content[0];
         Long readIndex = (Long) content[1];
+        byte[] fileContent = new byte[1024 * 1024];
+        try (RandomAccessFile sourceFile = FileUtil.createRandomAccessFile(FileUtil.file(filePath), FileMode.r)) {
+            sourceFile.seek(readIndex);
+            sourceFile.read(fileContent);
+            rpcResponse.setContent(fileContent);
+
+        } catch (Exception e) {
+            rpcResponse.setCode(RpcStatusCode.SERVER_ERROR);
+        }
+        ctx.channel().writeAndFlush(rpcResponse);
     }
 }

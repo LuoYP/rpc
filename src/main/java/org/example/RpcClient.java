@@ -6,6 +6,7 @@ import org.example.client.Cookies;
 import org.example.client.NettyClient;
 import org.example.client.annotation.RpcClientApplication;
 import org.example.common.annotation.Component;
+import org.example.common.annotation.Configuration;
 import org.example.common.annotation.RpcService;
 import org.example.common.constant.Constants;
 import org.example.common.constant.MessageType;
@@ -71,6 +72,7 @@ public class RpcClient {
         Set<Class<?>> componentClasses = new HashSet<>();
         componentClasses.addAll(ClassUtil.scanPackageByAnnotation(mainClazz.getPackageName(), Component.class));
         componentClasses.addAll(ClassUtil.scanPackageByAnnotation(RpcClient.class.getPackageName(), Component.class));
+        componentClasses.addAll(ClassUtil.scanPackageByAnnotation(RpcClient.class.getPackageName(), Configuration.class));
         Factory.initBean(componentClasses);
 
         //初始化需要代理的RPC接口

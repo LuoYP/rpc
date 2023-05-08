@@ -18,6 +18,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class RpcFileInputStream extends InputStream {
 
@@ -28,6 +29,8 @@ public class RpcFileInputStream extends InputStream {
     private final ByteBuf fileMemoryCache = Unpooled.buffer(1024 * 1024);
 
     private final AtomicBoolean isFirst = new AtomicBoolean(Boolean.TRUE);
+
+    private final AtomicLong readBytes = new AtomicLong(0);
 
     public RpcFileInputStream(Channel channel, String fileAbsolutePath) {
         this.channel = channel;
@@ -42,12 +45,15 @@ public class RpcFileInputStream extends InputStream {
             isFirst.compareAndSet(Boolean.TRUE, Boolean.FALSE);
         }
         if (fileMemoryCache.isReadable()) {
-            return fileMemoryCache.readInt();
+            return fileMemoryCache.readByte() & 0xFF;
         }
-        long readerIndex = fileMemoryCache.readerIndex();
+        long readIndex = readBytes.addAndGet(fileMemoryCache.readerIndex());
         fileMemoryCache.clear();
-        loadPartFileFromRemote(fileAbsolutePath, readerIndex + 1);
-        return fileMemoryCache.readInt();
+        loadPartFileFromRemote(fileAbsolutePath, readIndex + 1);
+        if (!fileMemoryCache.isReadable()) {
+            return -1;
+        }
+        return fileMemoryCache.readByte() & 0xFF;
     }
 
     @Override

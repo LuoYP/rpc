@@ -73,20 +73,28 @@ public class ClientWatchDog extends ChannelInboundHandlerAdapter implements Time
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
         Cookies cookies = (Cookies) Factory.getBean(Cookies.class);
         cookies.setServer(null);
+        retryConnect();
+        super.channelInactive(ctx);
+    }
+
+    @Override
+    public void run(Timeout timeout) {
+        try {
+            ChannelFuture future = bootstrap.connect(host, port);
+            future.sync();
+            LOGGER.info("client reconnect success!");
+            future.channel().closeFuture().sync();
+        } catch (Exception e) {
+            retryConnect();
+        }
+    }
+
+    private void retryConnect() {
         if (retryCount < reconnectTimes) {
             retryCount++;
             int timeout = Math.min(1 << retryCount, 30);
             LOGGER.info("the connection closed! reconnect after {} seconds!", timeout);
             timer.newTimeout(this, timeout, TimeUnit.SECONDS);
         }
-        super.channelInactive(ctx);
-    }
-
-    @Override
-    public void run(Timeout timeout) throws Exception {
-        ChannelFuture future = bootstrap.connect(host, port);
-        future.sync();
-        LOGGER.info("client reconnect success!");
-        future.channel().closeFuture().sync();
     }
 }

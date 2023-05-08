@@ -44,6 +44,8 @@ public class Factory {
                     }
                 }
             }
+        }
+        for (Class<?> clazz : classes) {
             Component annotation = clazz.getAnnotation(Component.class);
             if (Objects.nonNull(annotation)) {
                 Object instance = BEAN_WAREHOUSE.containsKey(clazz) ? BEAN_WAREHOUSE.get(clazz) : newInstance(clazz);
