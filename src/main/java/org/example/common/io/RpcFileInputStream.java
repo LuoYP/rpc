@@ -32,10 +32,9 @@ public class RpcFileInputStream extends InputStream {
 
     private final AtomicLong readBytes = new AtomicLong(0);
 
-    public RpcFileInputStream(Channel channel, String fileAbsolutePath) {
-        this.channel = channel;
-        this.fileAbsolutePath = fileAbsolutePath;
-
+    public RpcFileInputStream(AbstractRpcFile rpcFile) {
+        this.channel = rpcFile.getChannel();
+        this.fileAbsolutePath = rpcFile.fileAbsolutePath;
     }
 
     @Override

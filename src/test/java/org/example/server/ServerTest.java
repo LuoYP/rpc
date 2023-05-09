@@ -4,6 +4,7 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.crypto.digest.MD5;
 import org.example.RpcServer;
 import org.example.common.context.Factory;
+import org.example.common.io.RpcFileInputStream;
 import org.example.communication.server.api.SystemInfoService;
 import org.example.server.annotation.RpcServerApplication;
 import org.example.server.io.RpcFile;
@@ -37,7 +38,8 @@ public class ServerTest {
         File local = FileUtil.file("C:\\Users\\Administrator\\Desktop\\进化的四十六亿重奏.txt");
         long start = currentTimeMillis();
         LOGGER.info("start download file!");
-        FileUtil.writeFromStream(file.inputStream(), local);
+        RpcFileInputStream inputStream = new RpcFileInputStream(file);
+        FileUtil.writeFromStream(inputStream, local);
         LOGGER.info("download success,cost {}s!", (currentTimeMillis() - start) / 1000);
 
 

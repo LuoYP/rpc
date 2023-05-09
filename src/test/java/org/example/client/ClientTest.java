@@ -6,6 +6,7 @@ import org.example.RpcClient;
 import org.example.client.annotation.RpcClientApplication;
 import org.example.client.io.RpcFile;
 import org.example.common.context.Factory;
+import org.example.common.io.RpcFileInputStream;
 import org.example.communication.client.api.TimeServer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,8 @@ public class ClientTest {
         File local = FileUtil.file("C:\\Users\\Administrator\\Desktop\\进化的四十六亿重奏.txt");
         long start = currentTimeMillis();
         LOGGER.info("start download file!");
-        FileUtil.writeFromStream(file.inputStream(), local);
+        RpcFileInputStream inputStream = new RpcFileInputStream(file);
+        FileUtil.writeFromStream(inputStream, local);
         LOGGER.info("download success,cost {}s!", (currentTimeMillis() - start) / 1000);
 
 
