@@ -17,6 +17,7 @@ import org.example.common.model.RpcResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.File;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -51,11 +52,18 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
     private void processResponse(RpcResponse response) {
         var messageType = response.rpcHeader().messageType();
         switch (messageType) {
-            case MessageType.FILE_OUT -> {
+            case MessageType.FILE_IN -> {
                 long id = response.rpcHeader().id();
                 Promise<byte[]> promise = RpcContainer.TRANSFERRING_FILES.get(id);
                 if (Objects.nonNull(promise)) {
                     promise.setSuccess((byte[]) response.content());
+                }
+            }
+            case MessageType.FILE_OUT -> {
+                long id = response.rpcHeader().id();
+                Promise<Boolean> promise = RpcContainer.TRANSFERRING_FILES_OUT.get(id);
+                if (Objects.nonNull(promise)) {
+                    promise.setSuccess((Boolean) response.content());
                 }
             }
             default -> {
@@ -109,17 +117,13 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
         ctx.channel().writeAndFlush(rpcResponse);
     }
 
-    private void processFileInRequest(ChannelHandlerContext ctx, RpcRequest request) {
-
-    }
-
     /**
-     * 请求文件输出流,每次读取1M的文件内容写出
+     * 请求文件输入流,每次读取1M的文件内容传输
      *
      * @param ctx
      * @param request
      */
-    private void processFileOutRequest(ChannelHandlerContext ctx, RpcRequest request) {
+    private void processFileInRequest(ChannelHandlerContext ctx, RpcRequest request) {
         RpcResponse rpcResponse = new RpcResponse();
         rpcResponse.setRpcHeader(request.rpcHeader()).setCode(RpcStatusCode.OK);
 
@@ -127,7 +131,13 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
         String filePath = (String) content[0];
         Long readIndex = (Long) content[1];
         byte[] fileContent = new byte[1024 * 1024];
-        try (RandomAccessFile sourceFile = FileUtil.createRandomAccessFile(FileUtil.file(filePath), FileMode.r)) {
+        File file = FileUtil.file(filePath);
+        if (!FileUtil.exist(file)) {
+            rpcResponse.setCode(RpcStatusCode.NOT_FOUND);
+            ctx.channel().writeAndFlush(rpcResponse);
+            return;
+        }
+        try (RandomAccessFile sourceFile = FileUtil.createRandomAccessFile(file, FileMode.r)) {
             sourceFile.seek(readIndex);
             int read = sourceFile.read(fileContent);
             //最后一段
@@ -140,6 +150,33 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
             }
             rpcResponse.setContent(fileContent);
 
+        } catch (Exception e) {
+            rpcResponse.setCode(RpcStatusCode.SERVER_ERROR);
+        }
+        ctx.channel().writeAndFlush(rpcResponse);
+    }
+
+    /**
+     * 请求文件输出流,写入文件内容
+     *
+     * @param ctx
+     * @param request
+     */
+    private void processFileOutRequest(ChannelHandlerContext ctx, RpcRequest request) {
+        RpcResponse rpcResponse = new RpcResponse();
+        rpcResponse.setRpcHeader(request.rpcHeader()).setCode(RpcStatusCode.OK);
+
+        Object[] content = request.rpcContent().content();
+        String filePath = (String) content[0];
+        byte[] fileContent = (byte[]) content[1];
+        File file = FileUtil.file(filePath);
+        if (!FileUtil.exist(file)) {
+            FileUtil.touch(file);
+        }
+        try (RandomAccessFile sourceFile = FileUtil.createRandomAccessFile(file, FileMode.rw)) {
+            sourceFile.seek(sourceFile.length());
+            sourceFile.write(fileContent);
+            rpcResponse.setContent(Boolean.TRUE);
         } catch (Exception e) {
             rpcResponse.setCode(RpcStatusCode.SERVER_ERROR);
         }

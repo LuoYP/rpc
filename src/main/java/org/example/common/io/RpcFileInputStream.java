@@ -20,6 +20,20 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
+/**
+ * 模拟文件的输入流.
+ *
+ * <p>通过{@link org.example.server.io.RpcFile}或者{@link org.example.client.io.RpcFile}创建该输入流;
+ * 通过{@code RpcFile}对象获取文件传输的通道与远程文件地址;
+ * 每次传输1M的文件内容,并将其缓存在内存中,使用{@link ByteBuf}封装.
+ * <p><pre class="code">
+ *  RpcFileInputStream inputStream = new RpcFileInputStream(rpcFile);
+ *  int temp;
+ *  while((temp = inputStream.read()) != -1) {
+ *      //READ
+ *  }
+ * </pre>
+ */
 public class RpcFileInputStream extends InputStream {
 
     private final Channel channel;
@@ -37,10 +51,19 @@ public class RpcFileInputStream extends InputStream {
         this.fileAbsolutePath = rpcFile.fileAbsolutePath;
     }
 
+    /**
+     * 通过网络获取远程文件内容.
+     *
+     * <p>获取远程指定路径的文件内容,并将对应的内容写入到{@link ByteBuf}中;
+     * 因为使用了byte[],可能导致255被赋值为-1,如果直接读取将导致流提前关闭,将其与{@code 0xFF}进行位运算;
+     * 将每次获取文件内容的请求保存到{@link RpcContainer#TRANSFERRING_FILES}中,并阻塞等待文件内容返回,阻塞超时时间30S.
+     *
+     * @return 0~255,如果读到结尾返回-1.
+     */
     @Override
     public int read() throws IOException {
         if (isFirst.get()) {
-            loadPartFileFromRemote(fileAbsolutePath, 0L);
+            loadPartFileFromRemote(0L);
             isFirst.compareAndSet(Boolean.TRUE, Boolean.FALSE);
         }
         if (fileMemoryCache.isReadable()) {
@@ -48,7 +71,7 @@ public class RpcFileInputStream extends InputStream {
         }
         long readIndex = readBytes.addAndGet(fileMemoryCache.readerIndex());
         fileMemoryCache.clear();
-        loadPartFileFromRemote(fileAbsolutePath, readIndex);
+        loadPartFileFromRemote(readIndex);
         if (!fileMemoryCache.isReadable()) {
             return -1;
         }
@@ -60,10 +83,10 @@ public class RpcFileInputStream extends InputStream {
         super.close();
     }
 
-    private void loadPartFileFromRemote(String fileAbsolutePath, Long readIndex) {
+    private void loadPartFileFromRemote(Long readIndex) {
         RpcRequest request = new RpcRequest();
         var id = Constants.ID.getAndIncrement();
-        request.setRpcHeader(new RpcHeader().setMessageType(MessageType.FILE_OUT).setId(id));
+        request.setRpcHeader(new RpcHeader().setMessageType(MessageType.FILE_IN).setId(id));
         //filePath & readIndex
         request.setRpcContent(new RpcContent().setContent(new Object[]{fileAbsolutePath, readIndex}));
         channel.writeAndFlush(request);

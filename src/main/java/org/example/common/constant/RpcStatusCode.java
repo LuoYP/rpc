@@ -3,7 +3,7 @@ package org.example.common.constant;
 public enum RpcStatusCode {
 
     OK(200, "success"),
-    NOT_FOUND(404, "request method not found"),
+    NOT_FOUND(404, "request resource not found"),
 
     TIMEOUT(408, "request timeout"),
     SERVER_ERROR(500, "system inner error"),
