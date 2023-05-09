@@ -45,10 +45,15 @@ public class RpcFileOutputStream extends OutputStream {
 
     @Override
     public void close() throws IOException {
+        super.close();
+    }
+
+    @Override
+    public void flush() throws IOException {
         byte[] bytes = new byte[fileMemoryCache.readableBytes()];
         fileMemoryCache.readBytes(bytes);
         uploadPartFileToRemote(bytes);
-        super.close();
+        super.flush();
     }
 
     private void uploadPartFileToRemote(byte[] content) {

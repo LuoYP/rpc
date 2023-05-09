@@ -25,8 +25,8 @@ public class ClientTest {
 
     public static void main(String[] args) throws Exception {
         RpcClient.run(ClientTest.class);
-        Thread.sleep(15000);
-        testUploadRpcFile("C:\\Users\\Administrator\\Desktop\\进化的四十六亿重奏.txt");
+        Thread.sleep(5000);
+        testRpcFile("G:\\进化的四十六亿重奏.txt");
     }
 
     private static void tetRpc() throws Exception {
