@@ -26,7 +26,7 @@ public class ClientTest {
     public static void main(String[] args) throws Exception {
         RpcClient.run(ClientTest.class);
         Thread.sleep(5000);
-        testRpcFile("G:\\进化的四十六亿重奏.txt");
+        testUploadRpcFile("C:\\Users\\Administrator\\Desktop\\进化的四十六亿重奏.txt");
     }
 
     private static void tetRpc() throws Exception {
@@ -55,11 +55,11 @@ public class ClientTest {
         RpcFile rpcFile = new RpcFile(remoteUploadPath);
         File local = FileUtil.file("G:\\进化的四十六亿重奏.txt");
         long start = currentTimeMillis();
-        LOGGER.info("start download file!");
+        LOGGER.info("start upload file!");
         RpcFileOutputStream outputStream = new RpcFileOutputStream(rpcFile);
         BufferedInputStream inputStream = FileUtil.getInputStream(local);
         IoUtil.copy(inputStream, outputStream);
-        LOGGER.info("download success,cost {}s!", (currentTimeMillis() - start) / 1000);
+        LOGGER.info("upload success,cost {}s!", (currentTimeMillis() - start) / 1000);
 
         String sourceHash = MD5.create().digestHex(local);
         LOGGER.info("local file hash: {}", sourceHash);
