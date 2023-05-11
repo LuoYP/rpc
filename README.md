@@ -1,5 +1,6 @@
 # RPC
 #### Server
+___
 ```java
 @RpcServerApplication(rpcApiPackages = {"your.rpc.api.package"})
 public class Application {
@@ -13,6 +14,7 @@ public class Application {
 ```
 
 #### Client
+___
 ```java
 @RpcClientApplication(rpcApiPackages = "your.rpc.api.package")
 public class Application {
@@ -26,6 +28,7 @@ public class Application {
 ```
 
 #### File
+___
 ```java
 @RpcServerApplication(rpcApiPackages = "your.rpc.api.package")
 public class Application {
@@ -36,7 +39,7 @@ public class Application {
         RpcFile remoteFile = new RpcFile("127.0.0.1", "remote-file-path");
         File local = FileUtil.file("local-file-path");
         //hutool
-        FileUtil.writeFromStream(remoteFile.inputStream(), local);
+        FileUtil.writeFromStream(new RpcFileInputStream(remoteFile), local);
     }
 }
 ```
