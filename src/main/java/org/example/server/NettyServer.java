@@ -1,10 +1,7 @@
 package org.example.server;
 
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
@@ -49,7 +46,7 @@ public class NettyServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel ch) throws Exception {
-                            ch.pipeline().addLast(new IdleStateHandler(10, 0, 0, TimeUnit.SECONDS));
+                            ch.pipeline().addLast(new IdleStateHandler(2, 0, 0, TimeUnit.SECONDS));
                             ch.pipeline().addLast(new ServerHeartBeatHandler());
                             //长度用int就可以表示了，所以长度域取4个字节
                             //长度域不是业务消息的内容，消息实际内容忽略长度域的4个字节
@@ -61,14 +58,13 @@ public class NettyServer {
                     });
             ChannelFuture future = bootstrap.bind(configuration.host(), configuration.port()).sync();
             LOGGER.info("server is start!");
-            future.channel().closeFuture().sync();
-            LOGGER.info("server is close!");
+            future.channel().closeFuture().addListener((ChannelFutureListener) closeFuture -> {
+                bossGroup.shutdownGracefully();
+                workerGroup.shutdownGracefully();
+                LOGGER.info("server closed, release the thread-pool resource!");
+            });
         } catch (Exception e) {
-            throw new RuntimeException();
-        } finally {
-            bossGroup.shutdownGracefully();
-            workerGroup.shutdownGracefully();
-            LOGGER.info("release the thread-pool resource!");
+            throw new RuntimeException(e);
         }
     }
 }
