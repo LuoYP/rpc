@@ -78,8 +78,13 @@ public class RpcFileInputStream extends InputStream {
         return fileMemoryCache.readByte() & 0xFF;
     }
 
+    /**
+     * 手动释放内存资源
+     * @throws IOException
+     */
     @Override
     public void close() throws IOException {
+        fileMemoryCache.release();
         super.close();
     }
 

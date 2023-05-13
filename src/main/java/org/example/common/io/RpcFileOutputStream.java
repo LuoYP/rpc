@@ -43,8 +43,14 @@ public class RpcFileOutputStream extends OutputStream {
         fileMemoryCache.clear().writeByte(b);
     }
 
+    /**
+     * 手动释放资源
+     *
+     * @throws IOException
+     */
     @Override
     public void close() throws IOException {
+        fileMemoryCache.release();
         super.close();
     }
 
