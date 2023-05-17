@@ -26,6 +26,12 @@ public class Configuration {
 
     private Integer reconnectTimes = 3;
 
+    /** netty写缓冲区的高水位线 */
+    private Integer highWaterMark = 10*1024*1024;
+
+    /** netty写缓冲区低水位线 */
+    private Integer lowWaterMark = 2*1024*1024;
+
     public Configuration() {
         loadProperties();
     }
@@ -42,10 +48,18 @@ public class Configuration {
         return reconnectTimes;
     }
 
+    public Integer highWaterMark() {
+        return highWaterMark;
+    }
+
+    public Integer lowWaterMark() {
+        return lowWaterMark;
+    }
+
     //写死配置文件路径
     private void loadProperties() {
         Properties properties = new Properties();
-        String filePath = Configuration.class.getResource("/application.properties").getFile();
+        String filePath = Objects.requireNonNull(Configuration.class.getResource("/application.properties")).getFile();
         File propertiesFile = new File(filePath);
         try {
             properties.load(Files.newInputStream(propertiesFile.toPath()));

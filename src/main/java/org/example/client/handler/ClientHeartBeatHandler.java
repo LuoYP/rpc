@@ -26,7 +26,9 @@ public class ClientHeartBeatHandler extends ChannelInboundHandlerAdapter {
             if (state.equals(IdleState.WRITER_IDLE)) {
                 RpcHeader rpcHeader = new RpcHeader().setMessageType(MessageType.HEART_BEAT);
                 RpcRequest rpcRequest = new RpcRequest().setRpcHeader(rpcHeader);
-                ctx.channel().writeAndFlush(rpcRequest);
+                if (ctx.channel().isWritable()) {
+                    ctx.channel().writeAndFlush(rpcRequest);
+                }
             }
         }
     }

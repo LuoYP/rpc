@@ -42,6 +42,8 @@ public class NettyServer {
                     .childOption(ChannelOption.TCP_NODELAY, true)
                     //保持长连接
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
+                    //写缓存的高低水位线,通过该设置进行流量控制
+                    .childOption(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(configuration.lowWaterMark(), configuration.highWaterMark()))
                     //为netty服务器添加处理器完成对消息的简单处理
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override

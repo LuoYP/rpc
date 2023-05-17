@@ -114,7 +114,10 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
         }
         LOGGER.debug("request {}-{} cost:{}s", requestClass.getName(), requestMethod, (System.currentTimeMillis() - start) / 1000);
         rpcResponse.setContent(result);
-        ctx.channel().writeAndFlush(rpcResponse);
+        //缓冲区不可写,直接丢弃,所以应当合理设置高低水位线
+        if (ctx.channel().isWritable()) {
+            ctx.channel().writeAndFlush(rpcResponse);
+        }
     }
 
     /**
@@ -134,7 +137,10 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
         File file = FileUtil.file(filePath);
         if (!FileUtil.exist(file)) {
             rpcResponse.setCode(RpcStatusCode.NOT_FOUND);
-            ctx.channel().writeAndFlush(rpcResponse);
+            //缓冲区不可写,直接丢弃,所以应当合理设置高低水位线
+            if (ctx.channel().isWritable()) {
+                ctx.channel().writeAndFlush(rpcResponse);
+            }
             return;
         }
         try (RandomAccessFile sourceFile = FileUtil.createRandomAccessFile(file, FileMode.r)) {
@@ -153,7 +159,10 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
         } catch (Exception e) {
             rpcResponse.setCode(RpcStatusCode.SERVER_ERROR);
         }
-        ctx.channel().writeAndFlush(rpcResponse);
+        //缓冲区不可写,直接丢弃,所以应当合理设置高低水位线
+        if (ctx.channel().isWritable()) {
+            ctx.channel().writeAndFlush(rpcResponse);
+        }
     }
 
     /**
@@ -180,6 +189,9 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
         } catch (Exception e) {
             rpcResponse.setCode(RpcStatusCode.SERVER_ERROR);
         }
-        ctx.channel().writeAndFlush(rpcResponse);
+        //缓冲区不可写,直接丢弃,所以应当合理设置高低水位线
+        if (ctx.channel().isWritable()) {
+            ctx.channel().writeAndFlush(rpcResponse);
+        }
     }
 }

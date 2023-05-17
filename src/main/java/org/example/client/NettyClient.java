@@ -1,11 +1,7 @@
 package org.example.client;
 
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
@@ -44,6 +40,8 @@ public class NettyClient {
                 .option(ChannelOption.TCP_NODELAY, true)
                 //保持长连接
                 .option(ChannelOption.SO_KEEPALIVE, true)
+                //写缓存区的高低水位线,通过该设置进行流量控制
+                .option(ChannelOption.WRITE_BUFFER_WATER_MARK, new WriteBufferWaterMark(configuration.lowWaterMark(), configuration.highWaterMark()))
                 .handler(new ChannelInitializer<>() {
                     @Override
                     protected void initChannel(Channel ch) throws Exception {
