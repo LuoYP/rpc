@@ -3,7 +3,6 @@ package org.example.common.sender;
 import io.netty.channel.Channel;
 import io.netty.util.concurrent.DefaultPromise;
 import io.netty.util.concurrent.EventExecutor;
-import io.netty.util.concurrent.Promise;
 import org.example.common.annotation.Autowired;
 import org.example.common.annotation.Component;
 import org.example.common.constant.RpcContainer;
@@ -13,8 +12,6 @@ import org.example.common.model.RpcResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -27,7 +24,6 @@ public class RpcSender {
 
     public RpcResponse send(RpcRequest request, Channel channel) {
         long id = request.rpcHeader().id();
-        //不能每次都new一个线程，需要优化
         DefaultPromise<RpcResponse> promise = new DefaultPromise<>(eventExecutor);
         RpcContainer.RPC_RESPONSE.put(id, promise);
         channel.writeAndFlush(request);
