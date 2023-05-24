@@ -1,9 +1,12 @@
 package org.example.server;
 
+import io.netty.bootstrap.Bootstrap;
 import io.netty.bootstrap.ServerBootstrap;
+import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
+import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
@@ -71,7 +74,7 @@ public class NettyServer {
                         }
                     });
             ChannelFuture future = bootstrap.bind(configuration.host(), configuration.tcpPort()).sync();
-            LOGGER.info("tcp server is start!");
+            LOGGER.info("tcp server is starting!");
             future.channel().closeFuture().addListener((ChannelFutureListener) closeFuture -> {
                 bossGroup.shutdownGracefully();
                 workerGroup.shutdownGracefully();
@@ -83,6 +86,24 @@ public class NettyServer {
     }
 
     private void startUdpServer() {
-
+        EventLoopGroup group = new NioEventLoopGroup();
+        try {
+            Bootstrap bootstrap = new Bootstrap();
+            bootstrap.group(group)
+                    .channel(NioDatagramChannel.class)
+                    .option(ChannelOption.SO_BROADCAST, true)
+                    .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
+                    .handler(new ServerMessageHandler());
+            Channel channel = bootstrap.bind(configuration.udpPort()).sync().channel();
+            Session.putUdpChannel(channel);
+            LOGGER.info("tcp server is start!");
+            channel.closeFuture().addListener((ChannelFutureListener) closeFuture -> {
+                group.shutdownGracefully();
+                Session.removeUdpChannel();
+                LOGGER.info("udp server closed, release the thread-pool resource!");
+            });
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

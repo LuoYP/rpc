@@ -27,7 +27,7 @@ public class Session {
     }
 
     public static void putTcpChannel(String clientIp, Channel channel) {
-        ACTIVE_CHANNEL.putIfAbsent(clientIp, channel);
+        ACTIVE_CHANNEL.put(clientIp, channel);
     }
 
     public static void removeTcpChannel(String ip) {
@@ -40,5 +40,9 @@ public class Session {
 
     public static void putUdpChannel(Channel channel) {
         ACTIVE_CHANNEL.put(Protocol.UDP.name(), channel);
+    }
+
+    public static void removeUdpChannel() {
+        ACTIVE_CHANNEL.remove(Protocol.UDP.name());
     }
 }
