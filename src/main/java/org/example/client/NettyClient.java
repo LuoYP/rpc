@@ -45,7 +45,7 @@ public class NettyClient {
                 .handler(new ChannelInitializer<>() {
                     @Override
                     protected void initChannel(Channel ch) throws Exception {
-                        ch.pipeline().addLast(new ClientWatchDog(timer, bootstrap, configuration.host(), configuration.port(), configuration.reconnectTimes()));
+                        ch.pipeline().addLast(new ClientWatchDog(timer, bootstrap, configuration.host(), configuration.tcpPort(), configuration.reconnectTimes()));
                         ch.pipeline().addLast(new IdleStateHandler(0, 5, 0, TimeUnit.SECONDS));
                         ch.pipeline().addLast(new ClientHeartBeatHandler());
                         //长度用int就可以表示了，所以长度域取4个字节
@@ -57,7 +57,7 @@ public class NettyClient {
                     }
                 });
         try {
-            ChannelFuture future = bootstrap.connect(configuration.host(), configuration.port());
+            ChannelFuture future = bootstrap.connect(configuration.host(), configuration.tcpPort());
             future.sync();
             LOGGER.info("client start!");
             future.channel().closeFuture().sync();

@@ -1,5 +1,7 @@
 package org.example.server.annotation;
 
+import org.example.common.constant.Protocol;
+
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -12,4 +14,6 @@ import java.lang.annotation.Target;
 public @interface RpcServerApplication {
 
     String[] rpcApiPackages();
+
+    Protocol[] protocols();
 }

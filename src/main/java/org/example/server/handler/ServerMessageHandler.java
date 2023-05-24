@@ -28,7 +28,7 @@ public class ServerMessageHandler extends MessageHandler {
         InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
         String ipAddress = socketAddress.getAddress().getHostAddress();
         LOGGER.info("receive a connect! client is {}", ipAddress);
-        Session.ACTIVE_CHANNEL.putIfAbsent(ipAddress, channel);
+        Session.putTcpChannel(ipAddress, channel);
         super.channelActive(ctx);
     }
 
@@ -38,7 +38,7 @@ public class ServerMessageHandler extends MessageHandler {
         InetSocketAddress socketAddress = (InetSocketAddress) channel.remoteAddress();
         String ipAddress = socketAddress.getAddress().getHostAddress();
         LOGGER.info("client {} is off-line", ipAddress);
-        Session.ACTIVE_CHANNEL.entrySet().removeIf(e -> CharSequenceUtil.equals(ipAddress, e.getKey()));
+        Session.removeTcpChannel(ipAddress);
         super.channelInactive(ctx);
     }
 }

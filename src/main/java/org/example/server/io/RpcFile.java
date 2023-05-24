@@ -15,7 +15,7 @@ public class RpcFile extends AbstractRpcFile {
 
     @Override
     public Channel getChannel() {
-        return Session.ACTIVE_CHANNEL.get(ip);
+        return Session.getTcpChannel(ip);
     }
 
     public String ip() {

@@ -20,7 +20,9 @@ import java.util.stream.Collectors;
 public class Configuration {
 
     //默认通讯端口8080
-    private Integer port = 8080;
+    private Integer tcpPort = 8080;
+
+    private Integer udpPort = 8081;
 
     private String host = "127.0.0.1";
 
@@ -36,8 +38,12 @@ public class Configuration {
         loadProperties();
     }
 
-    public Integer port() {
-        return port;
+    public Integer tcpPort() {
+        return tcpPort;
+    }
+
+    public Integer udpPort() {
+        return udpPort;
     }
 
     public String host() {

@@ -10,6 +10,7 @@ import io.netty.handler.timeout.IdleStateHandler;
 import org.example.common.annotation.Autowired;
 import org.example.common.annotation.Component;
 import org.example.common.config.Configuration;
+import org.example.common.constant.Protocol;
 import org.example.common.handler.MessageDecoder;
 import org.example.common.handler.MessageEncoder;
 import org.example.server.handler.ServerHeartBeatHandler;
@@ -17,6 +18,7 @@ import org.example.server.handler.ServerMessageHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -27,7 +29,17 @@ public class NettyServer {
     @Autowired
     private Configuration configuration;
 
-    public void start() {
+    public void start(Protocol[] protocols) {
+        Arrays.stream(protocols).forEach(protocol -> {
+            switch (protocol) {
+                case TCP -> startTcpServer();
+                case UDP -> startUdpServer();
+                default -> throw new RuntimeException("un support protocol: " + protocol);
+            }
+        });
+    }
+
+    private void startTcpServer() {
         EventLoopGroup bossGroup = new NioEventLoopGroup();
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         try {
@@ -58,15 +70,19 @@ public class NettyServer {
                             ch.pipeline().addLast(new ServerMessageHandler());
                         }
                     });
-            ChannelFuture future = bootstrap.bind(configuration.host(), configuration.port()).sync();
-            LOGGER.info("server is start!");
+            ChannelFuture future = bootstrap.bind(configuration.host(), configuration.tcpPort()).sync();
+            LOGGER.info("tcp server is start!");
             future.channel().closeFuture().addListener((ChannelFutureListener) closeFuture -> {
                 bossGroup.shutdownGracefully();
                 workerGroup.shutdownGracefully();
-                LOGGER.info("server closed, release the thread-pool resource!");
+                LOGGER.info("tcp server closed, release the thread-pool resource!");
             });
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    private void startUdpServer() {
+
     }
 }

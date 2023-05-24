@@ -3,6 +3,7 @@ package org.example.server;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.crypto.digest.MD5;
 import org.example.RpcServer;
+import org.example.common.constant.Protocol;
 import org.example.common.context.Factory;
 import org.example.common.io.RpcFileInputStream;
 import org.example.communication.server.api.SystemInfoService;
@@ -15,7 +16,7 @@ import java.io.File;
 
 import static java.lang.System.currentTimeMillis;
 
-@RpcServerApplication(rpcApiPackages = {"org.example.communication.server.api"})
+@RpcServerApplication(rpcApiPackages = {"org.example.communication.server.api"}, protocols = Protocol.TCP)
 public class ServerTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ServerTest.class);

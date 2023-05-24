@@ -7,6 +7,7 @@ import org.example.common.annotation.Configuration;
 import org.example.common.annotation.RpcService;
 import org.example.common.constant.Constants;
 import org.example.common.constant.MessageType;
+import org.example.common.constant.Protocol;
 import org.example.common.constant.RpcStatusCode;
 import org.example.common.context.Factory;
 import org.example.common.model.RpcRequest;
@@ -41,7 +42,7 @@ public class RpcServer {
                 if (CharSequenceUtil.isEmpty(remote)) {
                     throw new RuntimeException("remote IP is empty");
                 }
-                Channel channel = Session.ACTIVE_CHANNEL.get(remote);
+                Channel channel = Session.getTcpChannel(remote);
                 if (Objects.isNull(channel)) {
                     throw new RuntimeException("remote is off-line");
                 }
@@ -89,10 +90,11 @@ public class RpcServer {
         Set<Class<?>> rpcServiceClasses = ClassUtil.scanPackageByAnnotation("", RpcService.class);
         Factory.instantiationRpcService(rpcServiceClasses);
 
+        Protocol[] protocols = annotation.protocols();
         //启动Netty服务
         Thread thread = new Thread(() -> {
             NettyServer nettyServer = (NettyServer) Factory.getBean(NettyServer.class);
-            nettyServer.start();
+            nettyServer.start(protocols);
         }, "netty-server");
         thread.start();
     }
