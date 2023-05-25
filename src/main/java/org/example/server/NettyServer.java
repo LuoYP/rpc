@@ -73,7 +73,7 @@ public class NettyServer {
                             ch.pipeline().addLast(new ServerMessageHandler());
                         }
                     });
-            ChannelFuture future = bootstrap.bind(configuration.host(), configuration.tcpPort()).sync();
+            ChannelFuture future = bootstrap.bind(configuration.host(), configuration.tcpPort());
             LOGGER.info("tcp server is starting!");
             future.channel().closeFuture().addListener((ChannelFutureListener) closeFuture -> {
                 bossGroup.shutdownGracefully();
@@ -94,7 +94,7 @@ public class NettyServer {
                     .option(ChannelOption.SO_BROADCAST, true)
                     .option(ChannelOption.ALLOCATOR, PooledByteBufAllocator.DEFAULT)
                     .handler(new ServerMessageHandler());
-            Channel channel = bootstrap.bind(configuration.udpPort()).sync().channel();
+            NioDatagramChannel channel = (NioDatagramChannel) bootstrap.bind(configuration.udpPort()).sync().channel();
             Session.putUdpChannel(channel);
             LOGGER.info("tcp server is start!");
             channel.closeFuture().addListener((ChannelFutureListener) closeFuture -> {

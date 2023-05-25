@@ -2,6 +2,7 @@ package org.example;
 
 import cn.hutool.core.util.ClassUtil;
 import io.netty.channel.Channel;
+import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.example.common.annotation.Component;
 import org.example.common.annotation.Configuration;
 import org.example.common.annotation.RpcService;
@@ -68,7 +69,7 @@ public class RpcServer {
                     }
                     throw new RuntimeException(status.msg());
                 }
-                Channel udpChannel = Session.getUdpChannel();
+                NioDatagramChannel udpChannel = (NioDatagramChannel) Session.getUdpChannel();
                 if (Objects.isNull(udpChannel)) {
                     throw new RuntimeException("udp server not start");
                 }
