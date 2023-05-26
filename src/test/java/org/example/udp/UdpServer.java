@@ -8,8 +8,11 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.CharsetUtil;
 import io.netty.util.NetUtil;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.util.Enumeration;
 
 public class UdpServer {
 
@@ -23,11 +26,7 @@ public class UdpServer {
             Bootstrap bootstrap = new Bootstrap();
             //设置NioDatagramChannel
             bootstrap.group(group).channel(NioDatagramChannel.class)
-//                    //设置Option 组播
-//                    .option(ChannelOption.IP_MULTICAST_IF, ni)
-//                    //设置Option 地址
-//                    .option(ChannelOption.IP_MULTICAST_ADDR, localAddress)
-//                    //设置地址
+                    //单机测试设置端口可复用
                     .option(ChannelOption.SO_REUSEADDR, true)
                     .handler(new ChannelInitializer<NioDatagramChannel>() {
                         @Override

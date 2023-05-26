@@ -6,7 +6,7 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.example.common.annotation.Component;
 import org.example.common.annotation.Configuration;
 import org.example.common.annotation.RpcService;
-import org.example.common.annotation.UseUDP;
+import org.example.common.annotation.Multicast;
 import org.example.common.constant.Constants;
 import org.example.common.constant.MessageType;
 import org.example.common.constant.Protocol;
@@ -39,8 +39,8 @@ public class RpcServer {
             if (Object.class.equals(method.getDeclaringClass())) {
                 return method.invoke(defaultObject, args);
             } else {
-                UseUDP useUDP = method.getAnnotation(UseUDP.class);
-                if (Objects.isNull(useUDP)){
+                Multicast multicast = method.getAnnotation(Multicast.class);
+                if (Objects.isNull(multicast)){
                     //通过netty发起远程过程调用
                     String remote = (String) args[0];
                     if (CharSequenceUtil.isEmpty(remote)) {
@@ -69,6 +69,7 @@ public class RpcServer {
                     }
                     throw new RuntimeException(status.msg());
                 }
+                //组播消息
                 NioDatagramChannel udpChannel = (NioDatagramChannel) Session.getUdpChannel();
                 if (Objects.isNull(udpChannel)) {
                     throw new RuntimeException("udp server not start");

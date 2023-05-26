@@ -9,8 +9,11 @@ import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.util.CharsetUtil;
 import io.netty.util.NetUtil;
 
+import java.net.Inet4Address;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
+import java.util.Enumeration;
 
 public class UdpClient {
 
@@ -24,8 +27,6 @@ public class UdpClient {
             Bootstrap b = new Bootstrap();
             // 设置Channel
             b.group(group).channel(NioDatagramChannel.class)
-                    // 设置Option 组播
-                    .option(ChannelOption.IP_MULTICAST_IF, ni)
                     // 设置Option 单机测试设置端口可重复绑定
                     .option(ChannelOption.SO_REUSEADDR, true)
                     // 设置Handler
@@ -33,7 +34,6 @@ public class UdpClient {
                         @Override
                         protected void initChannel(NioDatagramChannel ch) throws Exception {
                             ch.pipeline().addLast(new SimpleChannelInboundHandler<DatagramPacket>() {
-
                                 @Override
                                 protected void channelRead0(ChannelHandlerContext ctx, DatagramPacket msg)
                                         throws Exception {
@@ -45,9 +45,10 @@ public class UdpClient {
                     });
 
             // 获取Channel
-            Channel ch = b.bind(groupAddress.getPort()).sync().channel();
+            NioDatagramChannel ch = (NioDatagramChannel)b.bind(groupAddress.getPort()).sync().channel();
+            ch.joinGroup(groupAddress, ni).sync();
             // 往组播地址中发送数据报
-            ch.writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer("hello world", CharsetUtil.UTF_8), groupAddress)).sync();// 发送数据
+            ch.writeAndFlush(new DatagramPacket(Unpooled.copiedBuffer("hello world this is client,this message is multicast", CharsetUtil.UTF_8), groupAddress)).sync();// 发送数据
             // 关闭Channel
             ch.close().awaitUninterruptibly();
         } catch (Exception e) {

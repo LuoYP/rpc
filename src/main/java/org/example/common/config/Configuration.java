@@ -26,6 +26,9 @@ public class Configuration {
 
     private String host = "127.0.0.1";
 
+    /** 组播地址 */
+    private String multicastHost = "224.2.1.1";
+
     private Integer reconnectTimes = 3;
 
     /** netty写缓冲区的高水位线 */
@@ -48,6 +51,10 @@ public class Configuration {
 
     public String host() {
         return host;
+    }
+
+    public String multicastHost() {
+        return multicastHost;
     }
 
     public Integer reconnectTimes() {
