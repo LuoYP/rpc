@@ -12,4 +12,7 @@ public class MessageType {
 
     /** 该类型为请求远程文件输出流&响应文件输出流 */
     public static final byte FILE_OUT = 0x04;
+
+    /** 该类型为请求远程音频输出 */
+    public static final byte AUDIO = 0x05;
 }

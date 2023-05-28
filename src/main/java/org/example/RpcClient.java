@@ -10,6 +10,7 @@ import org.example.common.annotation.Configuration;
 import org.example.common.annotation.RpcService;
 import org.example.common.constant.Constants;
 import org.example.common.constant.MessageType;
+import org.example.common.constant.Protocol;
 import org.example.common.constant.RpcStatusCode;
 import org.example.common.context.Factory;
 import org.example.common.model.RpcRequest;
@@ -85,9 +86,10 @@ public class RpcClient {
         Factory.instantiationRpcService(rpcServiceClasses);
 
         //启动Netty服务
+        Protocol[] protocols = annotation.protocols();
         Thread thread = new Thread(() -> {
             NettyClient nettyClient = (NettyClient) Factory.getBean(NettyClient.class);
-            nettyClient.start();
+            nettyClient.start(protocols);
         }, "netty-client");
         thread.start();
     }

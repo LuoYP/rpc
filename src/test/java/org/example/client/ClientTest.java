@@ -6,6 +6,7 @@ import cn.hutool.crypto.digest.MD5;
 import org.example.RpcClient;
 import org.example.client.annotation.RpcClientApplication;
 import org.example.client.io.RpcFile;
+import org.example.common.constant.Protocol;
 import org.example.common.context.Factory;
 import org.example.common.io.RpcFileInputStream;
 import org.example.common.io.RpcFileOutputStream;
@@ -18,7 +19,7 @@ import java.io.File;
 
 import static java.lang.System.currentTimeMillis;
 
-@RpcClientApplication(rpcApiPackages = "org.example.communication.client.api")
+@RpcClientApplication(rpcApiPackages = "org.example.communication.client.api", protocols = {Protocol.TCP})
 public class ClientTest {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ClientTest.class);
@@ -26,7 +27,7 @@ public class ClientTest {
     public static void main(String[] args) throws Exception {
         RpcClient.run(ClientTest.class);
         Thread.sleep(5000);
-        testUploadRpcFile("C:\\Users\\Administrator\\Desktop\\进化的四十六亿重奏.txt");
+        testRpcFile("G:\\进化的四十六亿重奏.txt");
     }
 
     private static void tetRpc() throws Exception {

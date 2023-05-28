@@ -17,6 +17,9 @@ import org.example.common.config.Configuration;
 import org.example.common.constant.Protocol;
 import org.example.common.handler.MessageDecoder;
 import org.example.common.handler.MessageEncoder;
+import org.example.common.handler.MessageHandler;
+import org.example.common.handler.udp.UdpMessageDecoder;
+import org.example.common.handler.udp.UdpMessageEncoder;
 import org.example.server.handler.ServerHeartBeatHandler;
 import org.example.server.handler.ServerMessageHandler;
 import org.slf4j.Logger;
@@ -101,9 +104,9 @@ public class NettyServer {
                     .handler(new ChannelInitializer<>() {
                         @Override
                         protected void initChannel(Channel ch) throws Exception {
-                            ch.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4, 0, 4));
-                            ch.pipeline().addLast(new MessageEncoder());
-                            ch.pipeline().addLast(new MessageDecoder());
+                            ch.pipeline().addLast(new UdpMessageEncoder(groupAddress));
+                            ch.pipeline().addLast(new UdpMessageDecoder());
+                            ch.pipeline().addLast(new MessageHandler());
                         }
                     });
             //监听UDP端口,加入组
