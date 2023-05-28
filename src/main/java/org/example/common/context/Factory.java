@@ -82,7 +82,7 @@ public class Factory {
             interfaceClasses.addAll(ClassUtil.scanPackage(rpcApiPackage));
         }
         if (interfaceClasses.isEmpty()) {
-            throw new RuntimeException("you must statement rpc remote interface!");
+            return;
         }
         LOGGER.info("find rpc api, total {}", interfaceClasses.size());
         interfaceClasses.forEach(clazz -> {
