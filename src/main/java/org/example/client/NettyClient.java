@@ -119,7 +119,6 @@ public class NettyClient {
             LOGGER.info("udp client is start!");
             channel.closeFuture().addListener((ChannelFutureListener) closeFuture -> {
                 group.shutdownGracefully();
-                Session.removeUdpChannel();
                 LOGGER.info("udp client closed, release the thread-pool resource!");
             });
         } catch (InterruptedException e) {
