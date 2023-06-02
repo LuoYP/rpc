@@ -28,7 +28,7 @@ public class ServerTest {
     }
 
     private static void testRPC() throws Exception {
-        SystemInfoService proxy = (SystemInfoService) Factory.getBean(SystemInfoService.class);
+        SystemInfoService proxy = (SystemInfoService) Factory.getBeanNotNull(SystemInfoService.class);
         Thread.sleep(15000);
         String result = proxy.sayHello("127.0.0.1");
         LOGGER.info("receive a result: {}", result);

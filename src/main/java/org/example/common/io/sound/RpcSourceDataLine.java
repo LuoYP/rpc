@@ -30,7 +30,7 @@ public class RpcSourceDataLine {
     }
 
     public void start() {
-        Cookies cookies = (Cookies) Factory.getBean(Cookies.class);
+        Cookies cookies = (Cookies) Factory.getBeanNotNull(Cookies.class);
         this.channel = cookies.udpChannel();
     }
 

@@ -70,7 +70,7 @@ public class RpcFileOutputStream extends OutputStream {
         request.setRpcContent(new RpcContent().setContent(new Object[]{fileAbsolutePath, content}));
         channel.writeAndFlush(request);
         //阻塞等待远程调用结束再写入文件内容到缓存
-        EventExecutor eventExecutor = (EventExecutor) Factory.getBean(EventExecutor.class);
+        EventExecutor eventExecutor = (EventExecutor) Factory.getBeanNotNull(EventExecutor.class);
         Promise<Boolean> promise = new DefaultPromise<>(eventExecutor);
         RpcContainer.TRANSFERRING_FILES_OUT.put(id, promise);
         try {

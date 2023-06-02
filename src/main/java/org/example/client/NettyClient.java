@@ -19,6 +19,7 @@ import org.example.common.annotation.Component;
 import org.example.common.config.Configuration;
 import org.example.common.constant.Protocol;
 import org.example.common.context.Factory;
+import org.example.common.handler.Filter;
 import org.example.common.handler.MessageDecoder;
 import org.example.common.handler.MessageEncoder;
 import org.example.common.handler.MessageHandler;
@@ -31,6 +32,7 @@ import org.slf4j.LoggerFactory;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -93,6 +95,7 @@ public class NettyClient {
         EventLoopGroup group = new NioEventLoopGroup();
         InetSocketAddress groupAddress = new InetSocketAddress(configuration.multicastHost(), configuration.udpPort());
         try {
+            Filter filter = (Filter)Factory.getBean(Filter.class);
             NetworkInterface ni = NetUtil.LOOPBACK_IF;
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group)
@@ -103,8 +106,9 @@ public class NettyClient {
                     .handler(new ChannelInitializer<>() {
                         @Override
                         protected void initChannel(Channel ch) throws Exception {
+                            UdpMessageDecoder decoder = Objects.isNull(filter) ? new UdpMessageDecoder() : new UdpMessageDecoder(filter);
                             ch.pipeline().addLast(new UdpMessageEncoder(groupAddress));
-                            ch.pipeline().addLast(new UdpMessageDecoder());
+                            ch.pipeline().addLast(decoder);
                             ch.pipeline().addLast(new MessageHandler());
                         }
                     });
@@ -114,7 +118,7 @@ public class NettyClient {
             future.addListener((ChannelFutureListener) future1 -> {
                 LOGGER.info("join group success!");
             });
-            Cookies cookies = (Cookies) Factory.getBean(Cookies.class);
+            Cookies cookies = (Cookies) Factory.getBeanNotNull(Cookies.class);
             cookies.setUdpChannel(channel);;
             LOGGER.info("udp client is start!");
             channel.closeFuture().addListener((ChannelFutureListener) closeFuture -> {

@@ -37,7 +37,7 @@ public class RpcClient {
                 return method.invoke(defaultObject, args);
             } else {
                 //通过netty发起远程过程调用
-                Cookies cookies = (Cookies) Factory.getBean(Cookies.class);
+                Cookies cookies = (Cookies) Factory.getBeanNotNull(Cookies.class);
                 Channel server = cookies.server();
                 if (Objects.isNull(server)) {
                     throw new RuntimeException("server is off-line");
@@ -53,7 +53,7 @@ public class RpcClient {
                         .buildRpcHeader(id, messageType, null)
                         .buildRpcContent(args);
                 //发送请求
-                RpcSender sender = (RpcSender) Factory.getBean(RpcSender.class);
+                RpcSender sender = (RpcSender) Factory.getBeanNotNull(RpcSender.class);
                 RpcResponse rpcResponse = sender.send(rpcRequest, server);
                 RpcStatusCode status = rpcResponse.code();
                 if (RpcStatusCode.OK.equals(status)) {
@@ -88,7 +88,7 @@ public class RpcClient {
         //启动Netty服务
         Protocol[] protocols = annotation.protocols();
         Thread thread = new Thread(() -> {
-            NettyClient nettyClient = (NettyClient) Factory.getBean(NettyClient.class);
+            NettyClient nettyClient = (NettyClient) Factory.getBeanNotNull(NettyClient.class);
             nettyClient.start(protocols);
         }, "netty-client");
         thread.start();

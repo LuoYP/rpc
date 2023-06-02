@@ -56,7 +56,7 @@ public class ClientWatchDog extends ChannelInboundHandlerAdapter implements Time
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         LOGGER.info("connect to server success!");
         Channel server = ctx.channel();
-        Cookies cookies = (Cookies) Factory.getBean(Cookies.class);
+        Cookies cookies = (Cookies) Factory.getBeanNotNull(Cookies.class);
         cookies.setServer(server);
         retryCount = 0;
         super.channelActive(ctx);
@@ -71,7 +71,7 @@ public class ClientWatchDog extends ChannelInboundHandlerAdapter implements Time
      */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
-        Cookies cookies = (Cookies) Factory.getBean(Cookies.class);
+        Cookies cookies = (Cookies) Factory.getBeanNotNull(Cookies.class);
         cookies.setServer(null);
         retryConnect();
         super.channelInactive(ctx);

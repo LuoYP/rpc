@@ -50,7 +50,7 @@ public class CommentHandler extends AbstractHandler{
             ctx.channel().writeAndFlush(rpcResponse);
             return;
         }
-        var instance = Factory.getBean(requestClass);
+        var instance = Factory.getBeanNotNull(requestClass);
         Method method;
         Object result = null;
         var start = System.currentTimeMillis();

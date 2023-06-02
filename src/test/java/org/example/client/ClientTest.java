@@ -32,7 +32,7 @@ public class ClientTest {
 
     private static void tetRpc() throws Exception {
         Thread.sleep(20000);
-        TimeServer timeServer = (TimeServer) Factory.getBean(TimeServer.class);
+        TimeServer timeServer = (TimeServer) Factory.getBeanNotNull(TimeServer.class);
         System.out.println(timeServer.now());
     }
 

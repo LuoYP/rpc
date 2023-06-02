@@ -13,7 +13,7 @@ public class RpcFile extends AbstractRpcFile {
 
     @Override
     protected Channel getChannel() {
-        Cookies cookies = (Cookies) Factory.getBean(Cookies.class);
+        Cookies cookies = (Cookies) Factory.getBeanNotNull(Cookies.class);
         return cookies.server();
     }
 }

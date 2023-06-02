@@ -96,7 +96,7 @@ public class RpcFileInputStream extends InputStream {
         request.setRpcContent(new RpcContent().setContent(new Object[]{fileAbsolutePath, readIndex}));
         channel.writeAndFlush(request);
         //阻塞等待第一段文件内容到来再开始读取
-        EventExecutor eventExecutor = (EventExecutor) Factory.getBean(EventExecutor.class);
+        EventExecutor eventExecutor = (EventExecutor) Factory.getBeanNotNull(EventExecutor.class);
         Promise<byte[]> promise = new DefaultPromise<>(eventExecutor);
         RpcContainer.TRANSFERRING_FILES.put(id, promise);
         try {

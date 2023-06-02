@@ -30,7 +30,7 @@ public class MessageHandler extends ChannelInboundHandlerAdapter {
     }
 
     private void processRequest(ChannelHandlerContext ctx, RpcRequest request) {
-        RpcRequestHandler requestHandler = (RpcRequestHandler) Factory.getBean(RpcRequestHandler.class);
+        RpcRequestHandler requestHandler = (RpcRequestHandler) Factory.getBeanNotNull(RpcRequestHandler.class);
         requestHandler.accept(ctx, request);
     }
 

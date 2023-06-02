@@ -105,12 +105,16 @@ public class Factory {
         }
     }
 
-    public static Object getBean(Class<?> clazz) {
+    public static Object getBeanNotNull(Class<?> clazz) {
         Object bean = BEAN_WAREHOUSE.get(clazz);
         if (Objects.isNull(bean)) {
             throw new RuntimeException("can not find target bean");
         }
         return bean;
+    }
+
+    public static Object getBean(Class<?> clazz) {
+        return BEAN_WAREHOUSE.get(clazz);
     }
 
     private static Object newInstance(Class<?> clazz) {
