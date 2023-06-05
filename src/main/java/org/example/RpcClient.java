@@ -69,19 +69,20 @@ public class RpcClient {
      * 启动netty客户端
      */
     public static void run(Class<?> mainClazz) {
-        //初始化需要反射创建的对象
-        Set<Class<?>> componentClasses = new HashSet<>();
-        componentClasses.addAll(ClassUtil.scanPackageByAnnotation(mainClazz.getPackageName(), Component.class));
-        componentClasses.addAll(ClassUtil.scanPackageByAnnotation(RpcClient.class.getPackageName(), Component.class));
-        componentClasses.addAll(ClassUtil.scanPackageByAnnotation(RpcClient.class.getPackageName(), Configuration.class));
-        Factory.initBean(componentClasses);
-
         //初始化需要代理的RPC接口
         RpcClientApplication annotation = mainClazz.getAnnotation(RpcClientApplication.class);
         if (Objects.isNull(annotation)) {
             throw new RuntimeException("you must statement RpcClientApplication on your starter!");
         }
         Factory.instantiationRpcApi(PROXY_GENERATOR, annotation.rpcApiPackages());
+        //初始化需要反射创建的对象
+        Set<Class<?>> componentClasses = new HashSet<>();
+        componentClasses.addAll(ClassUtil.scanPackageByAnnotation(mainClazz.getPackageName(), Component.class));
+        componentClasses.addAll(ClassUtil.scanPackageByAnnotation(mainClazz.getPackageName(), Configuration.class));
+        componentClasses.addAll(ClassUtil.scanPackageByAnnotation(RpcClient.class.getPackageName(), Component.class));
+        componentClasses.addAll(ClassUtil.scanPackageByAnnotation(RpcClient.class.getPackageName(), Configuration.class));
+        Factory.initBean(componentClasses);
+
         Set<Class<?>> rpcServiceClasses = ClassUtil.scanPackageByAnnotation("", RpcService.class);
         Factory.instantiationRpcService(rpcServiceClasses);
 

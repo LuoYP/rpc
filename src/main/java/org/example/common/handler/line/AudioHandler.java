@@ -4,12 +4,17 @@ import io.netty.channel.ChannelHandlerContext;
 import org.example.common.annotation.Autowired;
 import org.example.common.annotation.Component;
 import org.example.common.constant.MessageType;
+import org.example.common.handler.Filter;
 import org.example.common.io.sound.RpcAudioFormat;
 import org.example.common.model.RpcRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.sound.sampled.*;
+import javax.sound.sampled.AudioFormat;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.DataLine;
+import javax.sound.sampled.LineUnavailableException;
+import javax.sound.sampled.SourceDataLine;
 import java.util.Objects;
 
 @Component
@@ -26,6 +31,9 @@ public class AudioHandler extends AbstractHandler{
     @Autowired
     private DefaultHandler nextHandler;
 
+    @Autowired(required = false)
+    private Filter filter;
+
     @Override
     protected boolean verify(byte messageType) {
         return MessageType.AUDIO == messageType;
@@ -38,6 +46,9 @@ public class AudioHandler extends AbstractHandler{
 
     @Override
     protected void processRequest(ChannelHandlerContext ctx, RpcRequest request) {
+        if (Objects.nonNull(filter) && !filter.accept(request.rpcHeader().authorization())) {
+            return;
+        }
         byte[] audio = request.rpcContent().binaryContent();
         RpcAudioFormat rpcAudioFormat = (RpcAudioFormat) request.rpcContent().content()[0];
         if (Objects.isNull(audioFormat)) {

@@ -95,7 +95,6 @@ public class NettyClient {
         EventLoopGroup group = new NioEventLoopGroup();
         InetSocketAddress groupAddress = new InetSocketAddress(configuration.multicastHost(), configuration.udpPort());
         try {
-            Filter filter = (Filter)Factory.getBean(Filter.class);
             NetworkInterface ni = NetUtil.LOOPBACK_IF;
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group)
@@ -106,9 +105,8 @@ public class NettyClient {
                     .handler(new ChannelInitializer<>() {
                         @Override
                         protected void initChannel(Channel ch) throws Exception {
-                            UdpMessageDecoder decoder = Objects.isNull(filter) ? new UdpMessageDecoder() : new UdpMessageDecoder(filter);
                             ch.pipeline().addLast(new UdpMessageEncoder(groupAddress));
-                            ch.pipeline().addLast(decoder);
+                            ch.pipeline().addLast(new UdpMessageDecoder());
                             ch.pipeline().addLast(new MessageHandler());
                         }
                     });

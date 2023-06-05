@@ -2,6 +2,7 @@ package org.example.common.io.sound;
 
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import org.example.client.Cookies;
+import org.example.common.constant.Constants;
 import org.example.common.constant.MessageType;
 import org.example.common.context.Factory;
 import org.example.common.model.RpcContent;
@@ -24,8 +25,13 @@ public class RpcSourceDataLine {
     }
 
     public static RpcSourceDataLine build(RpcAudioFormat audioFormat) {
+        return build(audioFormat, Constants.MULTICAST);
+    }
+
+    public static RpcSourceDataLine build(RpcAudioFormat audioFormat, String uniqueNumber) {
         RpcSourceDataLine sourceDataLine = new RpcSourceDataLine();
         sourceDataLine.audioFormat = audioFormat;
+        sourceDataLine.uniqueNumber = uniqueNumber;
         return sourceDataLine;
     }
 

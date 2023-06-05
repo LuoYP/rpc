@@ -56,6 +56,7 @@ public class Factory {
                     if (Objects.isNull(autowired)) {
                         continue;
                     }
+                    boolean required = autowired.required();
                     Class<?> fieldType = field.getType();
                     Object factoryBean = BEAN_WAREHOUSE.get(fieldType);
                     if (Objects.nonNull(factoryBean)) {
@@ -63,12 +64,14 @@ public class Factory {
                         continue;
                     }
                     Component annotation1 = fieldType.getAnnotation(Component.class);
-                    if (Objects.isNull(annotation1)) {
+                    if (Objects.isNull(annotation1) && required) {
                         throw new RuntimeException("inject bean mast statement Component");
                     }
-                    Object fieldObject = newInstance(fieldType);
-                    BEAN_WAREHOUSE.put(fieldType, fieldObject);
-                    setValue(instance, fieldObject, field);
+                    if (required) {
+                        Object fieldObject = newInstance(fieldType);
+                        BEAN_WAREHOUSE.put(fieldType, fieldObject);
+                        setValue(instance, fieldObject, field);
+                    }
                 }
                 BEAN_WAREHOUSE.put(clazz, instance);
             }

@@ -9,4 +9,6 @@ public class Constants {
     public static final String DASHED = "-";
 
     public static final AtomicLong ID = new AtomicLong(0);
+
+    public static final String MULTICAST = "multicast";
 }
