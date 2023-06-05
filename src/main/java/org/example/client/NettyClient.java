@@ -87,7 +87,7 @@ public class NettyClient {
             future.channel().closeFuture().sync();
             LOGGER.info("client closed!");
         } catch (Exception e) {
-            throw new RuntimeException();
+            throw new RuntimeException(e);
         }
     }
 
