@@ -19,20 +19,17 @@ import org.example.common.annotation.Component;
 import org.example.common.config.Configuration;
 import org.example.common.constant.Protocol;
 import org.example.common.context.Factory;
-import org.example.common.handler.Filter;
 import org.example.common.handler.MessageDecoder;
 import org.example.common.handler.MessageEncoder;
 import org.example.common.handler.MessageHandler;
 import org.example.common.handler.udp.UdpMessageDecoder;
 import org.example.common.handler.udp.UdpMessageEncoder;
-import org.example.server.Session;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.util.Arrays;
-import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -118,7 +115,8 @@ public class NettyClient {
                 LOGGER.info("join group success!");
             });
             Cookies cookies = (Cookies) Factory.getBeanNotNull(Cookies.class);
-            cookies.setUdpChannel(channel);;
+            cookies.setUdpChannel(channel);
+            ;
             LOGGER.info("udp client is start!");
             channel.closeFuture().addListener((ChannelFutureListener) closeFuture -> {
                 group.shutdownGracefully();
