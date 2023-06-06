@@ -84,8 +84,9 @@ public class NettyClient {
             ChannelFuture future = bootstrap.connect(configuration.host(), configuration.tcpPort());
             future.sync();
             LOGGER.info("client start!");
-            future.channel().closeFuture().sync();
-            LOGGER.info("client closed!");
+            future.channel().closeFuture().addListener((ChannelFutureListener) closeFuture -> {
+                LOGGER.info("client closed!");
+            });
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
