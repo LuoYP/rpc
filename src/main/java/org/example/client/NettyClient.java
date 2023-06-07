@@ -2,14 +2,19 @@ package org.example.client;
 
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.PooledByteBufAllocator;
-import io.netty.channel.*;
+import io.netty.channel.Channel;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelFutureListener;
+import io.netty.channel.ChannelInitializer;
+import io.netty.channel.ChannelOption;
+import io.netty.channel.EventLoopGroup;
+import io.netty.channel.WriteBufferWaterMark;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioDatagramChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.HashedWheelTimer;
-import io.netty.util.NetUtil;
 import io.netty.util.Timer;
 import org.example.client.handler.ClientHeartBeatHandler;
 import org.example.client.handler.ClientMessageHandler;
@@ -27,6 +32,7 @@ import org.example.common.handler.udp.UdpMessageEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.NetworkInterface;
 import java.util.Arrays;
@@ -93,7 +99,6 @@ public class NettyClient {
         EventLoopGroup group = new NioEventLoopGroup();
         InetSocketAddress groupAddress = new InetSocketAddress(configuration.multicastHost(), configuration.udpPort());
         try {
-            NetworkInterface ni = NetUtil.LOOPBACK_IF;
             Bootstrap bootstrap = new Bootstrap();
             bootstrap.group(group)
                     .channel(NioDatagramChannel.class)
@@ -110,19 +115,19 @@ public class NettyClient {
                     });
             //监听UDP端口,加入组
             NioDatagramChannel channel = (NioDatagramChannel) bootstrap.bind(groupAddress.getPort()).sync().channel();
+            NetworkInterface ni = NetworkInterface.getByInetAddress(InetAddress.getByName(configuration.localhost()));
             ChannelFuture future = channel.joinGroup(groupAddress, ni);
             future.addListener((ChannelFutureListener) future1 -> {
                 LOGGER.info("join group success!");
             });
             Cookies cookies = (Cookies) Factory.getBeanNotNull(Cookies.class);
             cookies.setUdpChannel(channel);
-            ;
             LOGGER.info("udp client is start!");
             channel.closeFuture().addListener((ChannelFutureListener) closeFuture -> {
                 group.shutdownGracefully();
                 LOGGER.info("udp client closed, release the thread-pool resource!");
             });
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
     }

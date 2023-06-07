@@ -27,7 +27,9 @@ public class Configuration {
     private String host = "127.0.0.1";
 
     /** 组播地址 */
-    private String multicastHost = "224.2.1.1";
+    private String multicastHost = "224.2.2.3";
+
+    private String localhost = "127.0.0.1";
 
     private Integer reconnectTimes = 3;
 
@@ -55,6 +57,10 @@ public class Configuration {
 
     public String multicastHost() {
         return multicastHost;
+    }
+
+    public String localhost() {
+        return localhost;
     }
 
     public Integer reconnectTimes() {

@@ -47,3 +47,4 @@ public class Application {
     }
 }
 ```
+>查询当前网络环境组播地址组成员信息: netsh interface ip show joins
