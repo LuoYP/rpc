@@ -1,14 +1,14 @@
 package org.example.common.config;
 
+import cn.hutool.core.io.resource.ResourceUtil;
 import org.example.common.annotation.Component;
 import org.example.common.annotation.ConfigPrefix;
 import org.example.common.constant.Constants;
 import org.example.common.utils.CharSequenceUtil;
 import org.example.common.utils.CollUtil;
 
-import java.io.File;
+import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.Objects;
@@ -72,10 +72,9 @@ public class Configuration {
     //写死配置文件路径
     private void loadProperties() {
         Properties properties = new Properties();
-        String filePath = Objects.requireNonNull(Configuration.class.getResource("/application.properties")).getFile();
-        File propertiesFile = new File(filePath);
         try {
-            properties.load(Files.newInputStream(propertiesFile.toPath()));
+            InputStream inputStream = ResourceUtil.getResource("application.properties").openStream();
+            properties.load(inputStream);
         } catch (Exception e) {
             return;
         }
